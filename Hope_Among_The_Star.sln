@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hope_Among_The_Star", "Hope_Among_The_Star\Hope_Among_The_Star.vcxproj", "{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Debug|x64.ActiveCfg = Debug|x64
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Debug|x64.Build.0 = Debug|x64
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Debug|x86.ActiveCfg = Debug|Win32
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Debug|x86.Build.0 = Debug|Win32
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Release|x64.ActiveCfg = Release|x64
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Release|x64.Build.0 = Release|x64
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Release|x86.ActiveCfg = Release|Win32
+		{97167CB6-8CD3-44BB-BC8E-B3A1BEA1ECCF}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D843F87-3618-4B0A-9D38-1EDDD3526ABF}
+	EndGlobalSection
+EndGlobal
