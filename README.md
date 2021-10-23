@@ -4,4 +4,4 @@ This project is the part of Programming Fundamental class - CE, KMITL:computer:
 - This project is developed using C/C++ 
 - This game is developed as a Text-Mode Game
 
-*[More information will be updated later.]
+*[More information will be updated later]
