@@ -20,6 +20,7 @@ bool pause = false;
 int p_count = 0;
 int score = 0;
 int lifepoint = 5;
+int wave_state = 0;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -31,9 +32,10 @@ int bcount = 0;
 COORD bulletPos[bullet_amount];
 
 //wave & star var.
-int wave_star = 15;
 int star_des = 0;
-int wave = 0;
+int star_state[max_star];
+int wave = 1;
+int wave_star[3] = {0,10,15};
 COORD star[max_star];
 
 void setcursor(bool visible) {
@@ -68,8 +70,8 @@ void draw_ship_to_buffer(COORD ship) {
 	consoleBuffer[ship.X + screen_x * ship.Y].Char.AsciiChar = ' ';//0
 	consoleBuffer[ship.X - 1 + screen_x * ship.Y].Char.AsciiChar = '_';// /
 	consoleBuffer[ship.X + 1 + screen_x * ship.Y].Char.AsciiChar = '_';
-	consoleBuffer[ship.X - 2 + screen_x * ship.Y].Char.AsciiChar = ' '; // }
-	consoleBuffer[ship.X + 2 + screen_x * ship.Y].Char.AsciiChar = ' ';
+	consoleBuffer[ship.X - 2 + screen_x * ship.Y].Char.AsciiChar = '^'; // }
+	consoleBuffer[ship.X + 2 + screen_x * ship.Y].Char.AsciiChar = '^';
 	consoleBuffer[ship.X + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' '; // A
 	consoleBuffer[ship.X + 1 + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' ';// >
 	consoleBuffer[ship.X - 1 + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' ';
@@ -93,17 +95,24 @@ void shipMovement(char dir) {
 		if (mainShip.X != 3) {
 			mainShip.X--;
 		}
-		else { dir == 'n'; mainShip.X = 3; }
+		else { dir = 'n'; mainShip.X = 3; }
 	}
 	if (dir == 'r') {
 		if (mainShip.X != screen_x - 4) {
 			mainShip.X++;
 		}
-		else { dir == 'n'; mainShip.X = screen_x - 4; }
+		else { dir = 'n'; mainShip.X = screen_x - 4; }
 	}
 	if (dir == 'n') {
 		mainShip.X = mainShip.X;
 		mainShip.Y = mainShip.Y;
+	}
+}
+void wave_change(int S_destroy) {
+	if (S_destroy == wave_star[wave]) {
+		wave++;
+		star_des = 0;
+		wave_state = 1;
 	}
 }
 void scoreBoard(int s) {
@@ -129,30 +138,46 @@ void scoreBoard(int s) {
 	for (int i = 73; i < lifepoint+73; i++) {
 		consoleBuffer[i + screen_x * 0].Attributes = 78;
 	}
-
+	//wave
+	consoleBuffer[5 + screen_x * 0].Char.AsciiChar = 'W';
+	consoleBuffer[6 + screen_x * 0].Char.AsciiChar = 'A';
+	consoleBuffer[7 + screen_x * 0].Char.AsciiChar = 'V';
+	consoleBuffer[8 + screen_x * 0].Char.AsciiChar = 'E';
+	consoleBuffer[9 + screen_x * 0].Char.AsciiChar = ':';
+	consoleBuffer[10 + screen_x * 0].Char.AsciiChar = wave+48;
 }
 void clear_bullet(int x, int y) {
 	consoleBuffer[x + screen_x * y].Char.AsciiChar = ' ';
 	consoleBuffer[x + screen_x * y].Attributes = 0;
 }
 void fill_bullet_to_buffer(int x, int y) {
-	consoleBuffer[x + screen_x * y].Char.AsciiChar = '^';
+	consoleBuffer[x + screen_x * y].Char.AsciiChar = '-';
 	consoleBuffer[x + screen_x * y].Attributes = 48;
 }
 void hitChecker() {
-	for (int i = 0; i < wave_star; i++) {
+	for (int i = 0; i < wave_star[wave]; i++) {
 		//bullet check
 		for (int j = 0; j < bullet_amount; j++) {
 			if (bulletState[j] == 1) {
-				if (star[i].X == bulletPos[j].X && (star[i].Y == bulletPos[j].Y || star[i].Y == bulletPos[j].Y + 1)) {
-					star[i] = { SHORT(rand() % screen_x),1 };
+				if (((star[i].X == bulletPos[j].X) || (star[i].X+1 == bulletPos[j].X) || (star[i].X - 1 == bulletPos[j].X))&& (star[i].Y == bulletPos[j].Y || star[i].Y == bulletPos[j].Y + 1)) {
+					star_state[i]=0;
+					star[i] = { 50,0 };
+					star_des++;
 					bulletState[j] = 0;
 					Beep(1200, 25);
-					//lifepoint--;
 					score++;
 				}
 			}
 		}
+		//ship check
+		if ((star[i].X == mainShip.X && star[i].Y == mainShip.Y-2)||(star[i].X == mainShip.X+1 && star[i].Y == mainShip.Y - 1) || (star[i].X == mainShip.X - 1 && star[i].Y == mainShip.Y - 1)
+			|| (star[i].X == mainShip.X + 2 && star[i].Y == mainShip.Y) || (star[i].X == mainShip.X - 2 && star[i].Y == mainShip.Y)){
+			star_state[i] = 0;
+			star_des++;
+			Beep(800, 25);
+			lifepoint--;
+		}
+		//lifepoint check
 		if(lifepoint == 0){
 			play = false;
 		}
@@ -192,28 +217,33 @@ void clear_buffer()
 }
 void init_star() {
 	int i;
-	for (i = 0; i < wave_star; i++) {
+	for (i = 0; i < wave_star[wave]; i++) {
 		star[i] = { SHORT(rand() % screen_x),1 };
+		star_state[i] = 1;
 	}
 }
 void star_fall()
 {
 	int i;
-	i = (rand() % wave_star);
-	//for (i = 0; i < wave_star; i++) {
-		if (star[i].Y >= 21) {
+	i = (rand() % wave_star[wave]);
+	if(star_state[i]==1){
+		if (star[i].Y >= 30) {
 			star[i] = { SHORT(rand() % screen_x),1 };
 		}
 		else {
 			star[i] = { star[i].X,SHORT(star[i].Y + 1) };
 		}
-	//}
+	}
 }
 void fill_star_to_buffer()
 {
-	for (int i = 0; i < wave_star; i++) {
-		consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = '*';
-		consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 7;
+	for (int i = 0; i < wave_star[wave]; i++) {
+		if (star_state[i] == 1) {
+			consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = '0';
+			consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '>';
+			consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '<';
+			consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 90;
+		}
 	}
 }
 void fill_buffer_to_console()
@@ -226,8 +256,8 @@ int main()
 	setcursor(0);
 	setConsole(screen_x, screen_y);
 	setMode();
+	wave_state = 1;
 	srand(time(NULL));
-	init_star();
 	while (play) {
 		DWORD numEvents = 0;
 		DWORD numEventsRead = 0;
@@ -277,8 +307,13 @@ int main()
 			delete[] eventBuffer;
 		}
 		if (!pause) {
+			if (wave_state == 1) {
+				init_star();
+				wave_state = 0;
+			}
 			star_fall();
 			clear_buffer();
+			wave_change(star_des);
 			scoreBoard(score);
 			shipMovement(direct);
 			hitChecker();
