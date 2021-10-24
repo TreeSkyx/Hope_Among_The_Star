@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <time.h>
 #include "gameFont.h"
+#include "startmenu.h"
+#include "cursorSetting.h"
 #define max_star 30
 #define screen_x 100
 #define screen_y 30
@@ -16,11 +18,12 @@ COORD characterPos = { 0,0 };
 SMALL_RECT windowSize = { 0,0,screen_x - 1,screen_y - 1 };
 //game_var.
 bool play = true;
-bool pause = false;
+bool pause = true;
 int p_count = 0;
 int score = 0;
 int lifepoint = 5;
 int wave_state = 0;
+int enemy_left;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -57,15 +60,7 @@ int setMode() {
 	SetConsoleMode(rHnd, fdwMode);
 	return 0;
 }
-void cursorPos(int x, int y) {
-	COORD c = { x, y };
-	SetConsoleCursorPosition(
-		GetStdHandle(STD_OUTPUT_HANDLE), c);
-}
-void setcolor(int fg, int bg) {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hConsole, bg * 16 + fg);
-}
+
 void draw_ship_to_buffer(COORD ship) {
 	consoleBuffer[ship.X + screen_x * ship.Y].Char.AsciiChar = ' ';//0
 	consoleBuffer[ship.X - 1 + screen_x * ship.Y].Char.AsciiChar = '_';// /
@@ -146,13 +141,15 @@ void scoreBoard(int s) {
 	consoleBuffer[8 + screen_x * 0].Char.AsciiChar = 'E';
 	consoleBuffer[9 + screen_x * 0].Char.AsciiChar = ':';
 	consoleBuffer[10 + screen_x * 0].Char.AsciiChar = wave+48;
+	//enemy left
+	consoleBuffer[14 + screen_x * 0].Char.AsciiChar = 'W';
 }
 void clear_bullet(int x, int y) {
 	consoleBuffer[x + screen_x * y].Char.AsciiChar = ' ';
 	consoleBuffer[x + screen_x * y].Attributes = 0;
 }
 void fill_bullet_to_buffer(int x, int y) {
-	consoleBuffer[x + screen_x * y].Char.AsciiChar = '-';
+	consoleBuffer[x + screen_x * y].Char.AsciiChar = '^';
 	consoleBuffer[x + screen_x * y].Attributes = 48;
 }
 void hitChecker() {
@@ -223,11 +220,11 @@ void clear_buffer()
 void init_star() {
 	int i,j;
 	for (i = 0; i < wave_star[wave]; i++) {
-		star[i] = { SHORT((rand() % (screen_x - 4)) + 4),1 }; //(max-min+1)+min
+		star[i] = { SHORT((rand() % ((screen_x-4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
 		star_state[i] = 1;
 		for (j = 0; j < wave_star[wave]; j++) {
 			if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
-				star[i] = { SHORT((rand() % (screen_x - 4)) + 4),1 };
+				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
 			}
 			}
 	}
@@ -238,7 +235,7 @@ void star_fall()
 	i = (rand() % wave_star[wave]);
 	if(star_state[i]==1){
 		if (star[i].Y >= 28) {
-			star[i] = { SHORT((rand() % screen_x-3)+3),1 };
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
 		}
 		else {
 			star[i] = { star[i].X,SHORT(star[i].Y + 1) };
@@ -309,9 +306,15 @@ int main()
 						clickStat = 1;
 						shooting(clickStat);
 					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'G' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'g') {
+						pause = false;
+					}
 				}
 			}
 			delete[] eventBuffer;
+		}
+		if(pause){
+			start_page();
 		}
 		if (!pause) {
 			if (wave_state == 1) {

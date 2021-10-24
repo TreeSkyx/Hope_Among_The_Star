@@ -141,9 +141,13 @@
   <ItemGroup>
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="gameFont.cpp" />
+    <ClCompile Include="cursorSetting.cpp" />
+    <ClCompile Include="startmenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameFont.h" />
+    <ClInclude Include="cursorSetting.h" />
+    <ClInclude Include="startmenu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
