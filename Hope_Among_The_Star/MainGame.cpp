@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
+#include "gameFont.h"
 #define max_star 30
 #define screen_x 100
 #define screen_y 30
@@ -266,6 +267,7 @@ int main()
 {
 	setcursor(0);
 	setConsole(screen_x, screen_y);
+	fontChange();
 	setMode();
 	wave_state = 1;
 	srand(time(NULL));
