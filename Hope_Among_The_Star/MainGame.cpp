@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
-//#include "Scoreboard.h"
 #define max_star 30
 #define screen_x 100
 #define screen_y 30
@@ -253,6 +252,8 @@ void fill_star_to_buffer()
 			consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '>';
 			consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '<';
 			consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 90;
+			consoleBuffer[star[i].X+1 + screen_x * star[i].Y].Attributes = 2;
+			consoleBuffer[star[i].X-1 + screen_x * star[i].Y].Attributes = 2;
 		}
 	}
 }
