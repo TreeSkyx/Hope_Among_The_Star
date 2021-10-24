@@ -43,4 +43,9 @@ void start_page() {
 			}
 			state++;
 		}
+		setcolor(7, 0);
+		cursorPos(40,8);
+		printf("HOPE AMONG THE STAR");
+		cursorPos(42, 15);
+		printf("PRESS G TO START");
 }

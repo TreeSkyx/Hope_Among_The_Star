@@ -18,12 +18,12 @@ COORD characterPos = { 0,0 };
 SMALL_RECT windowSize = { 0,0,screen_x - 1,screen_y - 1 };
 //game_var.
 bool play = true;
-bool pause = true;
+bool pause = false;
+bool start = false;
 int p_count = 0;
 int score = 0;
 int lifepoint = 5;
 int wave_state = 0;
-int enemy_left;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -39,6 +39,7 @@ int star_des = 0;
 int star_state[max_star];
 int wave = 1;
 int wave_star[3] = {0,10,15};
+int enemy_left;
 COORD star[max_star];
 
 void setcursor(bool visible) {
@@ -141,8 +142,6 @@ void scoreBoard(int s) {
 	consoleBuffer[8 + screen_x * 0].Char.AsciiChar = 'E';
 	consoleBuffer[9 + screen_x * 0].Char.AsciiChar = ':';
 	consoleBuffer[10 + screen_x * 0].Char.AsciiChar = wave+48;
-	//enemy left
-	consoleBuffer[14 + screen_x * 0].Char.AsciiChar = 'W';
 }
 void clear_bullet(int x, int y) {
 	consoleBuffer[x + screen_x * y].Char.AsciiChar = ' ';
@@ -307,16 +306,16 @@ int main()
 						shooting(clickStat);
 					}
 					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'G' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'g') {
-						pause = false;
+						start = true;
 					}
 				}
 			}
 			delete[] eventBuffer;
 		}
-		if(pause){
+		if (!start) {
 			start_page();
 		}
-		if (!pause) {
+		if (!pause &&  start) {
 			if (wave_state == 1) {
 				init_star();
 				wave_state = 0;
