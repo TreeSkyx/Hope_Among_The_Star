@@ -132,11 +132,12 @@ void scoreBoard(int s) {
 	consoleBuffer[88 + screen_x * 0].Char.AsciiChar = t + 48;
 	consoleBuffer[89 + screen_x * 0].Char.AsciiChar = u + 48;
 	//lifepoint 
-	consoleBuffer[70 + screen_x * 0].Char.AsciiChar = 'L';
+	consoleBuffer[70 + screen_x * 0].Char.AsciiChar = 'H';
 	consoleBuffer[71 + screen_x * 0].Char.AsciiChar = 'P';
 	consoleBuffer[72 + screen_x * 0].Char.AsciiChar = ':';
-	for (int i = 73; i < lifepoint+73; i++) {
-		consoleBuffer[i + screen_x * 0].Attributes = 78;
+	consoleBuffer[73 + screen_x * 0].Char.AsciiChar = lifepoint+48;
+	for (int i = 74; i < lifepoint+74; i++) {
+		consoleBuffer[i + screen_x * 0].Attributes = 168;// light green
 	}
 	//wave
 	consoleBuffer[5 + screen_x * 0].Char.AsciiChar = 'W';
@@ -160,18 +161,22 @@ void hitChecker() {
 		for (int j = 0; j < bullet_amount; j++) {
 			if (bulletState[j] == 1) {
 				if (((star[i].X == bulletPos[j].X) || (star[i].X+1 == bulletPos[j].X) || (star[i].X - 1 == bulletPos[j].X))&& (star[i].Y == bulletPos[j].Y || star[i].Y == bulletPos[j].Y + 1)) {
+					if (star[i].X == bulletPos[j].X) {
+						score += 2;
+					}
+					else { score++; }
 					star_state[i]=0;
 					star[i] = { 50,0 };
 					star_des++;
 					bulletState[j] = 0;
 					Beep(1200, 25);
-					score++;
 				}
 			}
 		}
 		//ship check
 		if ((star[i].X == mainShip.X && star[i].Y == mainShip.Y-2)||(star[i].X == mainShip.X+1 && star[i].Y == mainShip.Y - 1) || (star[i].X == mainShip.X - 1 && star[i].Y == mainShip.Y - 1)
 			|| (star[i].X == mainShip.X + 2 && star[i].Y == mainShip.Y) || (star[i].X == mainShip.X - 2 && star[i].Y == mainShip.Y)){
+			star[i] = { 50,0 };
 			star_state[i] = 0;
 			star_des++;
 			Beep(800, 25);
@@ -216,10 +221,15 @@ void clear_buffer()
 	}
 }
 void init_star() {
-	int i;
+	int i,j;
 	for (i = 0; i < wave_star[wave]; i++) {
-		star[i] = { SHORT(rand() % screen_x),1 };
+		star[i] = { SHORT((rand() % (screen_x - 4)) + 4),1 }; //(max-min+1)+min
 		star_state[i] = 1;
+		for (j = 0; j < wave_star[wave]; j++) {
+			if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+				star[i] = { SHORT((rand() % (screen_x - 4)) + 4),1 };
+			}
+			}
 	}
 }
 void star_fall()
@@ -227,8 +237,8 @@ void star_fall()
 	int i;
 	i = (rand() % wave_star[wave]);
 	if(star_state[i]==1){
-		if (star[i].Y >= 30) {
-			star[i] = { SHORT(rand() % screen_x),1 };
+		if (star[i].Y >= 28) {
+			star[i] = { SHORT((rand() % screen_x-3)+3),1 };
 		}
 		else {
 			star[i] = { star[i].X,SHORT(star[i].Y + 1) };
@@ -292,16 +302,10 @@ int main()
 					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'D' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'd') {
 						direct = 'r';
 					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == ' ' /*|| eventBuffer[i].Event.KeyEvent.uChar.AsciiChar=='v'*/) {
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == ' ' ) {
 						clickStat = 1;
 						shooting(clickStat);
 					}
-					/*else if (eventBuffer[i].EventType == MOUSE_EVENT){
-						if (eventBuffer[i].Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) {
-							clickStat = 1;
-							shooting(clickStat);
-							}
-					}*/
 				}
 			}
 			delete[] eventBuffer;
