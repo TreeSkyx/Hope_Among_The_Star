@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
+//#include "Scoreboard.h"
 #define max_star 30
 #define screen_x 100
 #define screen_y 30
@@ -18,7 +19,7 @@ bool play = true;
 bool pause = false;
 int p_count = 0;
 int score = 0;
-int lifepoint = 10;
+int lifepoint = 5;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -105,26 +106,34 @@ void shipMovement(char dir) {
 		mainShip.Y = mainShip.Y;
 	}
 }
-void clear_bullet(int x, int y) {
-	consoleBuffer[x + screen_x * y].Char.AsciiChar = ' ';
-	consoleBuffer[x + screen_x * y].Attributes = 0;
-}
 void scoreBoard(int s) {
 	int u = 0, t = 0, h = 0, th = 0;
 	th = s / 1000;
 	h = (s % 1000) / 100;
 	t = (s % 100) / 10;
 	u = s % 10;
-	consoleBuffer[75 + screen_x * 0].Char.AsciiChar = 'S';
-	consoleBuffer[76 + screen_x * 0].Char.AsciiChar = 'C';
-	consoleBuffer[77 + screen_x * 0].Char.AsciiChar = 'O';
-	consoleBuffer[78 + screen_x * 0].Char.AsciiChar = 'R';
-	consoleBuffer[79 + screen_x * 0].Char.AsciiChar = 'E';
-	consoleBuffer[80 + screen_x * 0].Char.AsciiChar = ':';
-	consoleBuffer[81 + screen_x * 0].Char.AsciiChar = th + 48;
-	consoleBuffer[82 + screen_x * 0].Char.AsciiChar = h + 48;
-	consoleBuffer[83 + screen_x * 0].Char.AsciiChar = t + 48;
-	consoleBuffer[84 + screen_x * 0].Char.AsciiChar = u + 48;
+	consoleBuffer[80 + screen_x * 0].Char.AsciiChar = 'S';
+	consoleBuffer[81 + screen_x * 0].Char.AsciiChar = 'C';
+	consoleBuffer[82 + screen_x * 0].Char.AsciiChar = 'O';
+	consoleBuffer[83 + screen_x * 0].Char.AsciiChar = 'R';
+	consoleBuffer[84 + screen_x * 0].Char.AsciiChar = 'E';
+	consoleBuffer[85 + screen_x * 0].Char.AsciiChar = ':';
+	consoleBuffer[86 + screen_x * 0].Char.AsciiChar = th + 48;
+	consoleBuffer[87 + screen_x * 0].Char.AsciiChar = h + 48;
+	consoleBuffer[88 + screen_x * 0].Char.AsciiChar = t + 48;
+	consoleBuffer[89 + screen_x * 0].Char.AsciiChar = u + 48;
+	//lifepoint 
+	consoleBuffer[70 + screen_x * 0].Char.AsciiChar = 'L';
+	consoleBuffer[71 + screen_x * 0].Char.AsciiChar = 'P';
+	consoleBuffer[72 + screen_x * 0].Char.AsciiChar = ':';
+	for (int i = 73; i < lifepoint+73; i++) {
+		consoleBuffer[i + screen_x * 0].Attributes = 78;
+	}
+
+}
+void clear_bullet(int x, int y) {
+	consoleBuffer[x + screen_x * y].Char.AsciiChar = ' ';
+	consoleBuffer[x + screen_x * y].Attributes = 0;
 }
 void fill_bullet_to_buffer(int x, int y) {
 	consoleBuffer[x + screen_x * y].Char.AsciiChar = '^';
@@ -132,6 +141,7 @@ void fill_bullet_to_buffer(int x, int y) {
 }
 void hitChecker() {
 	for (int i = 0; i < wave_star; i++) {
+		//bullet check
 		for (int j = 0; j < bullet_amount; j++) {
 			if (bulletState[j] == 1) {
 				if (star[i].X == bulletPos[j].X && (star[i].Y == bulletPos[j].Y || star[i].Y == bulletPos[j].Y + 1)) {
@@ -143,9 +153,9 @@ void hitChecker() {
 				}
 			}
 		}
-		/*if(score==20){
+		if(lifepoint == 0){
 			play = false;
-		}*/
+		}
 	}
 }
 void shooting(int stat) {
@@ -183,20 +193,21 @@ void clear_buffer()
 void init_star() {
 	int i;
 	for (i = 0; i < wave_star; i++) {
-		star[i] = { SHORT(rand() % screen_x),SHORT(rand() % 10) };
+		star[i] = { SHORT(rand() % screen_x),1 };
 	}
 }
 void star_fall()
 {
 	int i;
-	for (i = 0; i < wave_star; i++) {
+	i = (rand() % wave_star);
+	//for (i = 0; i < wave_star; i++) {
 		if (star[i].Y >= 21) {
 			star[i] = { SHORT(rand() % screen_x),1 };
 		}
 		else {
 			star[i] = { star[i].X,SHORT(star[i].Y + 1) };
 		}
-	}
+	//}
 }
 void fill_star_to_buffer()
 {
