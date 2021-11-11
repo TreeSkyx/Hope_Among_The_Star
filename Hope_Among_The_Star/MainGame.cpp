@@ -185,9 +185,6 @@ void hitChecker() {
 		//lifepoint check
 		if(lifepoint == 0){
 			scoreWrite(pName, wave, score);
-			while (1) {
-				printf("Game Over");
-			}
 			play = false;
 			
 		}
@@ -338,7 +335,8 @@ int main()
 			setcolor(7, 0);
 			playerName();
 			scanf("%s", pName);
-			printf("%s", pName);
+			//printf("%s", pName);
+			scoreRead();
 			Sleep(1000);
 			start = true;
 			setcursor(0);
