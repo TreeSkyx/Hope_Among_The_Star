@@ -139,12 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="fileWrite.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="gameFont.cpp" />
     <ClCompile Include="cursorSetting.cpp" />
     <ClCompile Include="startmenu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="fileWrite.h" />
     <ClInclude Include="gameFont.h" />
     <ClInclude Include="cursorSetting.h" />
     <ClInclude Include="startmenu.h" />

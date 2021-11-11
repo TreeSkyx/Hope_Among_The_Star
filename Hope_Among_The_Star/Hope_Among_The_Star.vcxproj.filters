@@ -27,6 +27,9 @@
     <ClCompile Include="cursorSetting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fileWrite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameFont.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cursorSetting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileWrite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

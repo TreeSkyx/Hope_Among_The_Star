@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS 1
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
@@ -24,6 +25,7 @@ int p_count = 0;
 int score = 0;
 int lifepoint = 5;
 int wave_state = 0;
+int gCount = 0;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -216,6 +218,14 @@ void clear_buffer()
 		}
 	}
 }
+void clear_screen() {
+	for (int y = 0; y < screen_y; ++y) {
+		for (int x = 0; x < screen_x; ++x) {
+			setcolor(7, 0);
+			printf(" ");
+		}
+	}
+}
 void init_star() {
 	int i,j;
 	for (i = 0; i < wave_star[wave]; i++) {
@@ -268,52 +278,61 @@ int main()
 	wave_state = 1;
 	srand(time(NULL));
 	while (play) {
-		DWORD numEvents = 0;
-		DWORD numEventsRead = 0;
-		GetNumberOfConsoleInputEvents(rHnd, &numEvents);
-		if (numEvents != 0) {
-			INPUT_RECORD* eventBuffer = new INPUT_RECORD[numEvents];
-			ReadConsoleInput(rHnd, eventBuffer, numEvents, &numEventsRead);
-			for (DWORD i = 0; i < numEventsRead; ++i) {
-				if (eventBuffer[i].EventType == KEY_EVENT && eventBuffer[i].Event.KeyEvent.bKeyDown == true) {
-					if (eventBuffer[i].Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) {
-						play = false;
-					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'P' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'p') {
-						if (p_count == 0) {
-							pause = true;
-							p_count++;
-							cursorPos(45, 28);
-							setcolor(2, 0);
-							printf("PAUSE");
+			DWORD numEvents = 0;
+			DWORD numEventsRead = 0;
+			GetNumberOfConsoleInputEvents(rHnd, &numEvents);
+			if (numEvents != 0) {
+				INPUT_RECORD* eventBuffer = new INPUT_RECORD[numEvents];
+				ReadConsoleInput(rHnd, eventBuffer, numEvents, &numEventsRead);
+				for (DWORD i = 0; i < numEventsRead; ++i) {
+					if (eventBuffer[i].EventType == KEY_EVENT && eventBuffer[i].Event.KeyEvent.bKeyDown == true) {
+						if (eventBuffer[i].Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) {
+							play = false;
 						}
-						else if (p_count > 0) {
-							pause = false;
-							p_count = 0;
+						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'P' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'p') {
+							if (p_count == 0) {
+								pause = true;
+								p_count++;
+								cursorPos(45, 28);
+								setcolor(2, 0);
+								printf("PAUSE");
+							}
+							else if (p_count > 0) {
+								pause = false;
+								p_count = 0;
+							}
 						}
-					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'A' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'a') {
-						direct = 'l';
-					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'S' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 's') {
-						direct = 'n';
-					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'D' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'd') {
-						direct = 'r';
-					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == ' ' ) {
-						clickStat = 1;
-						shooting(clickStat);
-					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'G' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'g') {
-						start = true;
+						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'A' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'a') {
+							direct = 'l';
+						}
+						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'S' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 's') {
+							direct = 'n';
+						}
+						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'D' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'd') {
+							direct = 'r';
+						}
+						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == ' ') {
+							clickStat = 1;
+							shooting(clickStat);
+						}
+						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'G' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'g') {
+							gCount++;
+						}
 					}
 				}
+				delete[] eventBuffer;
 			}
-			delete[] eventBuffer;
-		}
-		if (!start) {
+		if (gCount==0 && !start) {
 			start_page();
+		}
+		if (gCount==1 && !start) {
+			clear_screen();
+			setcursor(1);
+			setcolor(7, 0);
+			playerName();
+			printf("PLAY");
+			start = true;
+			setcursor(0);
 		}
 		if (!pause &&  start) {
 			if (wave_state == 1) {

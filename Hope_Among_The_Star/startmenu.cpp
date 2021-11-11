@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS 1
 #include "startmenu.h"
 #include "cursorSetting.h"
 #define screen_x 100
@@ -48,4 +49,22 @@ void start_page() {
 		printf("HOPE AMONG THE STAR");
 		cursorPos(42, 15);
 		printf("PRESS G TO START");
+}
+void playerName() {
+	char name[20];
+	bool stat = true;
+	setcolor(7, 0);
+	cursorPos(40, 8);
+	printf("ENTER YOUR NAME");
+	cursorPos(40, 10);
+	printf("---------------");
+	cursorPos(40, 12);
+	if (stat) {
+		scanf("%s", name);
+	}
+	if (name[0] != ' ') {
+		stat = false;
+	}
+	cursorPos(40, 15);
+	printf("%s", name);
 }
