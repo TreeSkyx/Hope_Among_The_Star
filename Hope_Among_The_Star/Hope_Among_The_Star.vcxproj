@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="fileRead.cpp" />
     <ClCompile Include="fileWrite.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="gameFont.cpp" />
@@ -146,6 +147,7 @@
     <ClCompile Include="startmenu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="fileRead.h" />
     <ClInclude Include="fileWrite.h" />
     <ClInclude Include="gameFont.h" />
     <ClInclude Include="cursorSetting.h" />

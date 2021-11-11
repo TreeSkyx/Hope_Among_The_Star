@@ -13,7 +13,7 @@ void scoreWrite(char n[20], int lv, int point) {
 	strcpy(p.name, n);
 	p.level = lv;
 	p.score= point;
-	fptr = fopen("ScoreRecord.txt", "W");
+	fptr = fopen("ScoreRecord.txt", "w");
 	fwrite(&p, sizeof(struct player), 1, fptr);
 	fclose(fptr);
 }

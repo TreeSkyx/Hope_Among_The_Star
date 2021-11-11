@@ -52,19 +52,10 @@ void start_page() {
 }
 void playerName() {
 	char name[20];
-	bool stat = true;
 	setcolor(7, 0);
 	cursorPos(40, 8);
 	printf("ENTER YOUR NAME");
 	cursorPos(40, 10);
 	printf("---------------");
 	cursorPos(40, 12);
-	if (stat) {
-		scanf("%s", name);
-	}
-	if (name[0] != ' ') {
-		stat = false;
-	}
-	cursorPos(40, 15);
-	printf("%s", name);
 }

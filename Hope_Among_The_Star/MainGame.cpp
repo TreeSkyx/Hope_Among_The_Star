@@ -4,6 +4,7 @@
 #include <time.h>
 #include "gameFont.h"
 #include "startmenu.h"
+#include "fileWrite.h"
 #include "cursorSetting.h"
 #define max_star 30
 #define screen_x 100
@@ -29,7 +30,8 @@ int gCount = 0;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
-
+//player var.
+char pName[20];
 //bullet var.
 int clickStat = 0;
 int bulletState[bullet_amount];
@@ -182,7 +184,12 @@ void hitChecker() {
 		}
 		//lifepoint check
 		if(lifepoint == 0){
+			scoreWrite(pName, wave, score);
+			while (1) {
+				printf("Game Over");
+			}
 			play = false;
+			
 		}
 	}
 }
@@ -330,7 +337,9 @@ int main()
 			setcursor(1);
 			setcolor(7, 0);
 			playerName();
-			printf("PLAY");
+			scanf("%s", pName);
+			printf("%s", pName);
+			Sleep(1000);
 			start = true;
 			setcursor(0);
 		}
