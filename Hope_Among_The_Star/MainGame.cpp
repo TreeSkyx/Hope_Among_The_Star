@@ -29,6 +29,9 @@ int wave_state = 0;
 int gCount = 0;
 int bCount = 0;
 bool clr_state = true;
+//item 
+int shield_item = 0;
+int shield_state = 0;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -39,7 +42,8 @@ int clickStat = 0;
 int bulletState[bullet_amount];
 int bcount = 0;
 COORD bulletPos[bullet_amount];
-
+//item var.
+COORD shield = { 10,1 };
 //wave & star var.
 int star_des = 0;
 int star_state[max_star];
@@ -117,6 +121,55 @@ void wave_change(int S_destroy) {
 		wave_state = 1;
 	}
 }
+void itemFall() {
+	if (shield_item == 1) {
+		if (shield.Y >= 28) {
+			shield_item = 0;
+		}
+		else {
+			shield = { shield.X,SHORT(shield.Y + 1) };
+		}
+	}
+}
+void init_shield() {
+	if (shield_item == 0 && shield_state == 0) {
+		int i = (rand() % 6);
+		if (i == 2) {
+			shield_item = 1;
+			shield = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+		}
+	}
+}
+void fill_shield_to_buffer(COORD shield) {
+	if (shield_item == 1) {
+		consoleBuffer[shield.X + screen_x * shield.Y].Char.AsciiChar = 'S';
+		consoleBuffer[shield.X + screen_x * shield.Y].Attributes = 48;
+	}
+	if (shield_state == 1) {
+		consoleBuffer[mainShip.X + 5 + screen_x * mainShip.Y].Char.AsciiChar = '_';
+		consoleBuffer[mainShip.X + 5 + screen_x * mainShip.Y].Attributes = 48;
+		consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Char.AsciiChar = '_';
+		consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Attributes = 48;
+		consoleBuffer[mainShip.X + 4 + screen_x * int(mainShip.Y-1)].Char.AsciiChar = '\\';
+		//consoleBuffer[mainShip.X + 4 + screen_x * int(mainShip.Y - 1)].Attributes = 48;
+		consoleBuffer[mainShip.X - 4 + screen_x * int(mainShip.Y - 1)].Char.AsciiChar = '/';
+		//consoleBuffer[mainShip.X - 4 + screen_x * int(mainShip.Y - 1)].Attributes = 48;
+		consoleBuffer[mainShip.X + 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '\\';
+		//consoleBuffer[mainShip.X + 3 + screen_x * int(mainShip.Y - 2)].Attributes = 48;
+		consoleBuffer[mainShip.X - 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '/';
+		//consoleBuffer[mainShip.X - 3 + screen_x * int(mainShip.Y - 2)].Attributes = 48;
+		consoleBuffer[mainShip.X + 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '\\';
+		//consoleBuffer[mainShip.X + 2 + screen_x * int(mainShip.Y - 3)].Attributes = 48;
+		consoleBuffer[mainShip.X - 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '/';
+		//consoleBuffer[mainShip.X - 2 + screen_x * int(mainShip.Y - 3)].Attributes = 48;
+		consoleBuffer[mainShip.X + 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '\\';
+		//consoleBuffer[mainShip.X + 1 + screen_x * int(mainShip.Y - 4)].Attributes = 48;
+		consoleBuffer[mainShip.X - 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '/';
+		//consoleBuffer[mainShip.X - 1 + screen_x * int(mainShip.Y - 4)].Attributes = 48;
+		consoleBuffer[mainShip.X + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '-';
+		consoleBuffer[mainShip.X  + screen_x * int(mainShip.Y - 4)].Attributes = 48;
+	}
+}
 void scoreBoard(int s) {
 	int u = 0, t = 0, h = 0, th = 0;
 	th = s / 1000;
@@ -190,6 +243,30 @@ void hitChecker() {
 			play = false;
 			
 		}
+		//shield check
+		if ((shield.X == mainShip.X && shield.Y == mainShip.Y - 2) || (shield.X == mainShip.X + 1 && shield.Y == mainShip.Y - 1) || (shield.X == mainShip.X - 1 && shield.Y == mainShip.Y - 1)
+			|| (shield.X == mainShip.X + 2 && shield.Y == mainShip.Y) || (shield.X == mainShip.X - 2 && shield.Y == mainShip.Y)) {
+			shield_item = 0;
+			shield = { 50,0 };
+			Beep(800, 25);
+			shield_state = 1;
+		}
+		//shield hit check
+		if (shield_state == 1) {
+			if ((star[i].X == mainShip.X && star[i].Y == mainShip.Y - 4) || (star[i].X == mainShip.X + 1 && star[i].Y == mainShip.Y - 4) || (star[i].X - 1 == mainShip.X && star[i].Y == mainShip.Y - 4) ||
+				(star[i].X == mainShip.X + 2 && star[i].Y == mainShip.Y - 3) || (star[i].X == mainShip.X - 2 && star[i].Y == mainShip.Y - 3)
+				|| (star[i].X == mainShip.X + 3 && star[i].Y == mainShip.Y - 2) || (star[i].X == mainShip.X - 3 && star[i].Y == mainShip.Y - 2)
+				|| (star[i].X == mainShip.X + 4 && star[i].Y == mainShip.Y - 1) || (star[i].X == mainShip.X - 4 && star[i].Y == mainShip.Y - 1)
+				|| (star[i].X == mainShip.X + 5 && star[i].Y == mainShip.Y) || (star[i].X == mainShip.X - 5 && star[i].Y == mainShip.Y)) {
+				shield_item = 0;
+				shield_state = 0;
+				star_state[i] = 0;
+				star[i] = { 50,0 };
+				star_des++;
+				score++;
+				Beep(1200, 25);
+			}
+		}
 	}
 }
 void shooting(int stat) {
@@ -246,11 +323,11 @@ void init_star() {
 }
 void star_fall()
 {
-	int pattern = 0;
-	if (pattern = 1) {
+	int pattern = (rand()% 3);
+	if (pattern == 1) {
 		int i;
 		i = (rand() % wave_star[wave]);
-		if(star_state[i]==1){
+		if (star_state[i] == 1) {
 			if (star[i].Y >= 28) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
 			}
@@ -259,8 +336,27 @@ void star_fall()
 			}
 		}
 	}
-	if (pattern = 2) {
-		
+	if (pattern == 2) {
+		int i,j;
+		i = (rand() % wave_star[wave]);
+		j = (rand() % 3);
+		if (star_state[i] == 1) {
+			if (star[i].Y >= 28) {
+				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+			}
+			if (star[i].X <= 4) {
+				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+			}
+			if (star[i].X >= (screen_x - 4)) {
+				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+			}
+			else {
+				if(j==1)
+				star[i] = {SHORT(star[i].X + 1),SHORT(star[i].Y + 1) };
+				else
+				star[i] = { SHORT(star[i].X - 1),SHORT(star[i].Y + 1) };
+			}
+		}
 	}
 }
 void fill_star_to_buffer()
@@ -366,6 +462,8 @@ int main()
 				init_star();
 				wave_state = 0;
 			}
+			init_shield();
+			itemFall();
 			star_fall();
 			clear_buffer();
 			wave_change(star_des);
@@ -374,6 +472,7 @@ int main()
 			hitChecker();
 			bullet_on();
 			draw_ship_to_buffer(mainShip);
+			fill_shield_to_buffer(shield);
 			fill_star_to_buffer();
 			fill_buffer_to_console();
 			Sleep(100);
