@@ -27,6 +27,8 @@ int score = 0;
 int lifepoint = 5;
 int wave_state = 0;
 int gCount = 0;
+int bCount = 0;
+bool clr_state = true;
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -244,15 +246,21 @@ void init_star() {
 }
 void star_fall()
 {
-	int i;
-	i = (rand() % wave_star[wave]);
-	if(star_state[i]==1){
-		if (star[i].Y >= 28) {
-			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+	int pattern = 0;
+	if (pattern = 1) {
+		int i;
+		i = (rand() % wave_star[wave]);
+		if(star_state[i]==1){
+			if (star[i].Y >= 28) {
+				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+			}
+			else {
+				star[i] = { star[i].X,SHORT(star[i].Y + 1) };
+			}
 		}
-		else {
-			star[i] = { star[i].X,SHORT(star[i].Y + 1) };
-		}
+	}
+	if (pattern = 2) {
+		
 	}
 }
 void fill_star_to_buffer()
@@ -322,22 +330,34 @@ int main()
 						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'G' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'g') {
 							gCount++;
 						}
+						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'B' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'b') {
+							bCount++;
+						}
 					}
 				}
 				delete[] eventBuffer;
 			}
-		if (gCount==0 && !start) {
+		if (gCount==0 && !start && bCount==0) {
 			start_page();
+			clr_state = true;
 		}
+		if (bCount == 1 && !start && gCount==0) {
+			if (clr_state) {
+				clear_screen();
+				clr_state = false;
+			}
+			highScore();
+		}
+		if (bCount == 2) { clear_screen(); bCount = 0; }
 		if (gCount==1 && !start) {
 			clear_screen();
 			setcursor(1);
 			setcolor(7, 0);
 			playerName();
 			scanf("%s", pName);
-			//printf("%s", pName);
-			scoreRead();
-			Sleep(1000);
+			cursorPos(40, 15);
+			printf("This is Stroy of %s", pName);
+			Sleep(2000);
 			start = true;
 			setcursor(0);
 		}

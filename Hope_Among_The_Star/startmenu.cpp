@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 #include "startmenu.h"
+#include "fileWrite.h"
 #include "cursorSetting.h"
 #define screen_x 100
 #define screen_y 30
@@ -49,6 +50,8 @@ void start_page() {
 		printf("HOPE AMONG THE STAR");
 		cursorPos(42, 15);
 		printf("PRESS G TO START");
+		cursorPos(42, 17);
+		printf("PRESS B TO LEADER BOARD");
 }
 void playerName() {
 	char name[20];
@@ -58,4 +61,11 @@ void playerName() {
 	cursorPos(40, 10);
 	printf("---------------");
 	cursorPos(40, 12);
+}
+void highScore() {
+	cursorPos(40, 8);
+	printf("Leader Board");
+	cursorPos(30, 10);
+	scoreRead();
+
 }
