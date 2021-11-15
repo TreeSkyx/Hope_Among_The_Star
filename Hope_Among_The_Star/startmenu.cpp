@@ -49,12 +49,16 @@ void start_page() {
 		cursorPos(40,8);
 		printf("HOPE AMONG THE STAR");
 		cursorPos(42, 15);
-		printf("PRESS G TO START");
+		printf("PRESS G : START");
 		cursorPos(42, 17);
-		printf("PRESS B TO LEADER BOARD");
+		printf("PRESS B : LEADER BOARD");
+}
+void credit_page() {
+	setcolor(7, 0);
+	cursorPos(40, 8);
+	printf("CREDIT");
 }
 void playerName() {
-	char name[20];
 	setcolor(7, 0);
 	cursorPos(40, 8);
 	printf("ENTER YOUR NAME");

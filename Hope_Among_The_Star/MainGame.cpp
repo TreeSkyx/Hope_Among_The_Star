@@ -10,6 +10,7 @@
 #define screen_x 100
 #define screen_y 30
 #define bullet_amount 6
+#define enemy_bullet_amount 3
 //windows_setting
 HANDLE rHnd;
 HANDLE wHnd;
@@ -25,6 +26,7 @@ bool start = false;
 int p_count = 0;
 int score = 0;
 int lifepoint = 5;
+int MSlifepoint = 20;
 int wave_state = 0;
 int gCount = 0;
 int bCount = 0;
@@ -42,13 +44,17 @@ int clickStat = 0;
 int bulletState[bullet_amount];
 int bcount = 0;
 COORD bulletPos[bullet_amount];
+//enemy bullet
+COORD enemyBulletPos[enemy_bullet_amount];
+int enemyBulletState[enemy_bullet_amount];
+int enemyBulletCount = 0;
 //item var.
 COORD shield = { 10,1 };
 //wave & star var.
 int star_des = 0;
 int star_state[max_star];
 int wave = 1;
-int wave_star[3] = {0,10,15};
+int wave_star[4] = {0,10,15,20};
 int enemy_left;
 COORD star[max_star];
 
@@ -194,6 +200,15 @@ void scoreBoard(int s) {
 	for (int i = 74; i < lifepoint+74; i++) {
 		consoleBuffer[i + screen_x * 0].Attributes = 168;// light green
 	}
+	// Mother Ship Lifepoint
+	consoleBuffer[5 + screen_x * 29].Char.AsciiChar = 'L';
+	consoleBuffer[6 + screen_x * 29].Char.AsciiChar = 'P';
+	consoleBuffer[7 + screen_x * 29].Char.AsciiChar = ':';
+	consoleBuffer[8 + screen_x * 29].Char.AsciiChar = (MSlifepoint/10) + 48;
+	consoleBuffer[9 + screen_x * 29].Char.AsciiChar = (MSlifepoint%10) + 48;
+	for (int j = 10; j < MSlifepoint + 9; j++) {
+		consoleBuffer[j + screen_x * 29].Attributes = 168;// light green
+	}
 	//wave
 	consoleBuffer[5 + screen_x * 0].Char.AsciiChar = 'W';
 	consoleBuffer[6 + screen_x * 0].Char.AsciiChar = 'A';
@@ -241,7 +256,11 @@ void hitChecker() {
 		if(lifepoint == 0){
 			scoreWrite(pName, wave, score);
 			play = false;
-			
+		}
+		//MSlifepoint checker
+		if (lifepoint == 0) {
+			scoreWrite(pName, wave, score);
+			play = false;
 		}
 		//shield check
 		if ((shield.X == mainShip.X && shield.Y == mainShip.Y - 2) || (shield.X == mainShip.X + 1 && shield.Y == mainShip.Y - 1) || (shield.X == mainShip.X - 1 && shield.Y == mainShip.Y - 1)
@@ -263,7 +282,7 @@ void hitChecker() {
 				star_state[i] = 0;
 				star[i] = { 50,0 };
 				star_des++;
-				score++;
+				score++; 
 				Beep(1200, 25);
 			}
 		}
@@ -321,6 +340,36 @@ void init_star() {
 			}
 	}
 }
+/*void fill_enemyB_to_buffer(int x, int y) {
+	consoleBuffer[x + screen_x * y].Char.AsciiChar = '^';
+	consoleBuffer[x + screen_x * y].Attributes = 48;
+}
+void init_starShooting() {
+	if (enemyBulletCount <= enemy_bullet_amount) {
+		int i = (rand() % wave_star[wave]);
+		if (star_state[i] == 1) {
+			enemyBulletState[i] = 1;
+			enemyBulletCount++;
+			enemyBulletPos[i].X = star[i].X;
+			enemyBulletPos[i].Y = star[i].Y;
+
+		}
+	}
+}
+void enemyBullet_on() {
+	for (int i = 0; i < enemy_bullet_amount;i++) {
+		if (enemyBulletState[i] == 1) {
+			if (enemyBulletPos[i].Y >= 28) {
+				enemyBulletState[i] = 0;
+				enemyBulletCount--;
+			}
+			else
+			{
+				fill_enemyB_to_buffer(enemyBulletPos[i].X, enemyBulletPos[i].Y--);
+			}
+		}
+	}
+}*/
 void star_fall()
 {
 	int pattern = (rand()% 3);
@@ -330,6 +379,7 @@ void star_fall()
 		if (star_state[i] == 1) {
 			if (star[i].Y >= 28) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				MSlifepoint--;
 			}
 			else {
 				star[i] = { star[i].X,SHORT(star[i].Y + 1) };
@@ -343,6 +393,7 @@ void star_fall()
 		if (star_state[i] == 1) {
 			if (star[i].Y >= 28) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				MSlifepoint--;
 			}
 			if (star[i].X <= 4) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
@@ -463,6 +514,8 @@ int main()
 				wave_state = 0;
 			}
 			init_shield();
+			/*init_starShooting();
+			enemyBullet_on();*/
 			itemFall();
 			star_fall();
 			clear_buffer();
