@@ -57,15 +57,15 @@ void start_page() {
 }
 void credit_page() {
 	setcolor(7, 0);
-	cursorPos(40, 8);
+	cursorPos(45, 8);
 	printf("CREDIT");
-	cursorPos(40, 9);
-	printf("---------------");
-	cursorPos(40, 10);
+	cursorPos(39, 9);
+	printf("------------------");
+	cursorPos(42, 10);
 	printf("Game Creator");
-	cursorPos(40, 11);
+	cursorPos(35, 12);
 	printf("64010815 WIROON SOMPHAOTHONG");
-	cursorPos(40, 12);
+	cursorPos(36, 14);
 	printf("COMPUTER ENGINEERING,KMITL");
 }
 void playerName() {
@@ -81,4 +81,26 @@ void highScore() {
 	printf("Leader Board");
 	scoreRead();
 
+}
+void gameEnd_page(char n[20], int lv,int sc) {
+	setcolor(2, 0);
+	cursorPos(40, 8);
+	printf("GAME OVER");
+	cursorPos(40, 9);
+	printf("=================");
+	cursorPos(40, 10);
+	printf("Your Score");
+	cursorPos(30, 12);
+	printf("Name : %s\t Wave : %d\tScore : %d", n, lv, sc);
+}
+void gameWinner_page(char n[20], int lv, int sc) {
+	setcolor(2, 0);
+	cursorPos(40, 8);
+	printf("THANK YOU FOR SAVING US");
+	cursorPos(40, 9);
+	printf("=======================");
+	cursorPos(45, 10);
+	printf("Your Score");
+	cursorPos(30, 12);
+	printf("Name : %s\t Wave : %d\tScore : %d", n, lv, sc);
 }

@@ -56,7 +56,7 @@ COORD shield = { 10,1 };
 int star_des = 0;
 int star_state[max_star];
 int wave = 1;
-int wave_star[4] = {0,10,15,20};
+int wave_star[5] = {0,10,15,20,0};
 int enemy_left;
 COORD star[max_star];
 //leader board
@@ -261,6 +261,12 @@ void leaderBoard_write(char name[20], int lv, int sc) {
 		insertionSort();
 	}
 }
+void winner() {
+	if (wave == 4) {
+		while(1)
+		gameWinner_page(pName, wave, score);
+	}
+}
 void hitChecker() {
 	for (int i = 0; i < wave_star[wave]; i++) {
 		//bullet check
@@ -295,6 +301,9 @@ void hitChecker() {
 				scoreWrite(topName[k], topLevel[k], topScore[k]);
 			}
 			play = false;
+			while(1)
+			gameEnd_page(pName, wave, score);
+			
 		}
 		//MSlifepoint checker
 		if (MSlifepoint == 0) {
@@ -303,8 +312,10 @@ void hitChecker() {
 				scoreWrite(topName[k], topLevel[k], topScore[k]);
 			}
 			play = false;
+			while(1)
+			gameEnd_page(pName, wave, score);
+			
 		}
-
 		//shield check
 		if ((shield.X == mainShip.X && shield.Y == mainShip.Y - 2) || (shield.X == mainShip.X + 1 && shield.Y == mainShip.Y - 1) || (shield.X == mainShip.X - 1 && shield.Y == mainShip.Y - 1)
 			|| (shield.X == mainShip.X + 2 && shield.Y == mainShip.Y) || (shield.X == mainShip.X - 2 && shield.Y == mainShip.Y)) {
@@ -582,6 +593,7 @@ int main()
 			fill_shield_to_buffer(shield);
 			fill_star_to_buffer();
 			fill_buffer_to_console();
+			winner();
 			Sleep(100);
 		}
 	}
