@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <time.h>
+#include <string.h>
 #include "gameFont.h"
 #include "startmenu.h"
 #include "fileWrite.h"
@@ -30,6 +31,7 @@ int MSlifepoint = 20;
 int wave_state = 0;
 int gCount = 0;
 int bCount = 0;
+int cCount = 0;
 bool clr_state = true;
 //item 
 int shield_item = 0;
@@ -57,7 +59,10 @@ int wave = 1;
 int wave_star[4] = {0,10,15,20};
 int enemy_left;
 COORD star[max_star];
-
+//leader board
+char topName[10][20] = { {'A'},{'B'},{'C'},{'D'},{'E'},{'F'},{'G'},{'H'},{'I'},{'J'} };
+int topLevel[10] = { 2,1,3,3,2,2,3,1,1,1 };
+int topScore[10] = { 123,56,615,684,465,321,798,46,0,24 };
 void setcursor(bool visible) {
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO lpCursor;
@@ -225,6 +230,37 @@ void fill_bullet_to_buffer(int x, int y) {
 	consoleBuffer[x + screen_x * y].Char.AsciiChar = '^';
 	consoleBuffer[x + screen_x * y].Attributes = 48;
 }
+void insertionSort() {
+	int i, j, temp, levelTemp;
+	char nameTemp[20];
+	for (i = 0; i < 10; i++) {
+		temp = topScore[i];
+		levelTemp = topLevel[i];
+		strcpy(nameTemp, topName[i]);
+		j = i - 1;
+
+		while (j >= 0 && temp >= topScore[j])
+		{
+			topScore[j + 1] = topScore[j];
+			topLevel[j + 1] = topLevel[j];
+			strcpy(topName[j + 1], topName[j]);
+			j = j - 1;
+		}
+		topScore[j + 1] = temp;
+		topLevel[j + 1] = levelTemp;
+		strcpy(topName[j + 1], nameTemp);
+	}
+}
+void leaderBoard_write(char name[20], int lv, int sc) {
+	insertionSort();
+	if (sc > topScore[9])
+	{
+		strcpy(topName[9], name);
+		topLevel[9] = lv;
+		topScore[9] = sc;
+		insertionSort();
+	}
+}
 void hitChecker() {
 	for (int i = 0; i < wave_star[wave]; i++) {
 		//bullet check
@@ -254,14 +290,21 @@ void hitChecker() {
 		}
 		//lifepoint check
 		if(lifepoint == 0){
-			scoreWrite(pName, wave, score);
+			leaderBoard_write(pName,wave,score);
+			for (int k = 0; k < 10; k++) {
+				scoreWrite(topName[k], topLevel[k], topScore[k]);
+			}
 			play = false;
 		}
 		//MSlifepoint checker
-		if (lifepoint == 0) {
-			scoreWrite(pName, wave, score);
+		if (MSlifepoint == 0) {
+			leaderBoard_write(pName, wave, score);
+			for (int k = 0; k < 10; k++) {
+				scoreWrite(topName[k], topLevel[k], topScore[k]);
+			}
 			play = false;
 		}
+
 		//shield check
 		if ((shield.X == mainShip.X && shield.Y == mainShip.Y - 2) || (shield.X == mainShip.X + 1 && shield.Y == mainShip.Y - 1) || (shield.X == mainShip.X - 1 && shield.Y == mainShip.Y - 1)
 			|| (shield.X == mainShip.X + 2 && shield.Y == mainShip.Y) || (shield.X == mainShip.X - 2 && shield.Y == mainShip.Y)) {
@@ -437,65 +480,76 @@ int main()
 	wave_state = 1;
 	srand(time(NULL));
 	while (play) {
-			DWORD numEvents = 0;
-			DWORD numEventsRead = 0;
-			GetNumberOfConsoleInputEvents(rHnd, &numEvents);
-			if (numEvents != 0) {
-				INPUT_RECORD* eventBuffer = new INPUT_RECORD[numEvents];
-				ReadConsoleInput(rHnd, eventBuffer, numEvents, &numEventsRead);
-				for (DWORD i = 0; i < numEventsRead; ++i) {
-					if (eventBuffer[i].EventType == KEY_EVENT && eventBuffer[i].Event.KeyEvent.bKeyDown == true) {
-						if (eventBuffer[i].Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) {
-							play = false;
+		DWORD numEvents = 0;
+		DWORD numEventsRead = 0;
+		GetNumberOfConsoleInputEvents(rHnd, &numEvents);
+		if (numEvents != 0) {
+			INPUT_RECORD* eventBuffer = new INPUT_RECORD[numEvents];
+			ReadConsoleInput(rHnd, eventBuffer, numEvents, &numEventsRead);
+			for (DWORD i = 0; i < numEventsRead; ++i) {
+				if (eventBuffer[i].EventType == KEY_EVENT && eventBuffer[i].Event.KeyEvent.bKeyDown == true) {
+					if (eventBuffer[i].Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) {
+						play = false;
+					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'P' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'p') {
+						if (p_count == 0) {
+							pause = true;
+							p_count++;
+							cursorPos(45, 28);
+							setcolor(2, 0);
+							printf("PAUSE");
 						}
-						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'P' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'p') {
-							if (p_count == 0) {
-								pause = true;
-								p_count++;
-								cursorPos(45, 28);
-								setcolor(2, 0);
-								printf("PAUSE");
-							}
-							else if (p_count > 0) {
-								pause = false;
-								p_count = 0;
-							}
-						}
-						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'A' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'a') {
-							direct = 'l';
-						}
-						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'S' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 's') {
-							direct = 'n';
-						}
-						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'D' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'd') {
-							direct = 'r';
-						}
-						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == ' ') {
-							clickStat = 1;
-							shooting(clickStat);
-						}
-						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'G' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'g') {
-							gCount++;
-						}
-						else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'B' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'b') {
-							bCount++;
+						else if (p_count > 0) {
+							pause = false;
+							p_count = 0;
 						}
 					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'A' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'a') {
+						direct = 'l';
+					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'S' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 's') {
+						direct = 'n';
+					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'D' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'd') {
+						direct = 'r';
+					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == ' ') {
+						clickStat = 1;
+						shooting(clickStat);
+					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'G' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'g') {
+						gCount++;
+					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'B' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'b') {
+						bCount++;
+					}
+					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'C' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'c') {
+						cCount++;
+					}
 				}
-				delete[] eventBuffer;
 			}
-		if (gCount==0 && !start && bCount==0) {
+			delete[] eventBuffer;
+		}
+		if (gCount == 0 && !start && bCount == 0 && cCount == 0) {
 			start_page();
 			clr_state = true;
 		}
-		if (bCount == 1 && !start && gCount==0) {
+		if (bCount == 1 && !start && gCount == 0) {
 			if (clr_state) {
 				clear_screen();
 				clr_state = false;
 			}
 			highScore();
 		}
+		if (cCount == 1 && !start && gCount == 0) {
+			if (clr_state) {
+				clear_screen();
+				clr_state = false;
+			}
+			credit_page();
+		}
 		if (bCount == 2) { clear_screen(); bCount = 0; }
+		if (cCount == 2) { clear_screen(); cCount = 0; }
 		if (gCount==1 && !start) {
 			clear_screen();
 			setcursor(1);
@@ -531,5 +585,5 @@ int main()
 			Sleep(100);
 		}
 	}
-	return 0;
+	//return 0;
 }

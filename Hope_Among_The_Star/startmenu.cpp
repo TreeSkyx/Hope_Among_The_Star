@@ -52,11 +52,21 @@ void start_page() {
 		printf("PRESS G : START");
 		cursorPos(42, 17);
 		printf("PRESS B : LEADER BOARD");
+		cursorPos(42, 19);
+		printf("PRESS C : CREDIT");
 }
 void credit_page() {
 	setcolor(7, 0);
 	cursorPos(40, 8);
 	printf("CREDIT");
+	cursorPos(40, 9);
+	printf("---------------");
+	cursorPos(40, 10);
+	printf("Game Creator");
+	cursorPos(40, 11);
+	printf("64010815 WIROON SOMPHAOTHONG");
+	cursorPos(40, 12);
+	printf("COMPUTER ENGINEERING,KMITL");
 }
 void playerName() {
 	setcolor(7, 0);
@@ -69,7 +79,6 @@ void playerName() {
 void highScore() {
 	cursorPos(40, 8);
 	printf("Leader Board");
-	cursorPos(30, 10);
 	scoreRead();
 
 }

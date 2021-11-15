@@ -7,13 +7,16 @@ struct player{
 	int score;
 }p;
 fptr = fopen("scoreRecord.txt","r");
-noffset = 0 * sizeof(struct player);
+for(i=0;i<5;i++)
+{
+noffset = i * sizeof(struct player);
 if(fseek(fptr,noffset,0)==0){	
 	if(fread(&p,sizeof(struct player),1,fptr)!=0){
 		printf("Name : %s\t",p.name);
 		printf("Level : %d\t",p.level);
 		printf("Score : %d\n",p.score);
 	}
+}
 }
 fclose(fptr);
 return 0;
