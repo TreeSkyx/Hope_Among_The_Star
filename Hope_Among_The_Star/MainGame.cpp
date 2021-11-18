@@ -60,9 +60,9 @@ int wave_star[5] = {0,10,15,20,0};
 int enemy_left;
 COORD star[max_star];
 //leader board
-char topName[10][20] = { {'A'},{'B'},{'C'},{'D'},{'E'},{'F'},{'G'},{'H'},{'I'},{'J'} };
-int topLevel[10] = { 2,1,3,3,2,2,3,1,1,1 };
-int topScore[10] = { 123,56,615,684,465,321,798,46,0,24 };
+char topName[5][20];
+int topLevel[5];
+int topScore[5];
 void setcursor(bool visible) {
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO lpCursor;
@@ -78,7 +78,7 @@ int setConsole(int x, int y) {
 }
 int setMode() {
 	rHnd = GetStdHandle(STD_INPUT_HANDLE);
-	fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+	fdwMode = ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_ECHO_INPUT | ENABLE_INSERT_MODE | ENABLE_LINE_INPUT ;
 	SetConsoleMode(rHnd, fdwMode);
 	return 0;
 }
@@ -233,7 +233,7 @@ void fill_bullet_to_buffer(int x, int y) {
 void insertionSort() {
 	int i, j, temp, levelTemp;
 	char nameTemp[20];
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 5; i++) {
 		temp = topScore[i];
 		levelTemp = topLevel[i];
 		strcpy(nameTemp, topName[i]);
@@ -253,11 +253,11 @@ void insertionSort() {
 }
 void leaderBoard_write(char name[20], int lv, int sc) {
 	insertionSort();
-	if (sc > topScore[9])
+	if (sc > topScore[4])
 	{
-		strcpy(topName[9], name);
-		topLevel[9] = lv;
-		topScore[9] = sc;
+		strcpy(topName[4], name);
+		topLevel[4] = lv;
+		topScore[4] = sc;
 		insertionSort();
 	}
 }
@@ -295,10 +295,10 @@ void hitChecker() {
 			lifepoint--;
 		}
 		//lifepoint check
-		if(lifepoint == 0){
+		if(lifepoint == 4){
 			leaderBoard_write(pName,wave,score);
-			for (int k = 0; k < 10; k++) {
-				scoreWrite(topName[k], topLevel[k], topScore[k]);
+			for (int k = 0; k < 5; k++) {
+				scoreWrite(topName[k], topLevel[k], topScore[k], k);
 			}
 			play = false;
 			while(1)
@@ -308,8 +308,8 @@ void hitChecker() {
 		//MSlifepoint checker
 		if (MSlifepoint == 0) {
 			leaderBoard_write(pName, wave, score);
-			for (int k = 0; k < 10; k++) {
-				scoreWrite(topName[k], topLevel[k], topScore[k]);
+			for (int k = 0; k < 5; k++) {
+				scoreWrite(topName[k], topLevel[k], topScore[k], k);
 			}
 			play = false;
 			while(1)
@@ -436,7 +436,7 @@ void star_fall()
 				MSlifepoint--;
 			}
 			else {
-				star[i] = { star[i].X,SHORT(star[i].Y + 1) };
+				star[i] = { star[i].X,SHORT(star[i].Y + 2) };
 			}
 		}
 	}
@@ -457,9 +457,9 @@ void star_fall()
 			}
 			else {
 				if(j==1)
-				star[i] = {SHORT(star[i].X + 1),SHORT(star[i].Y + 1) };
+				star[i] = {SHORT(star[i].X + 2),SHORT(star[i].Y + 1) };
 				else
-				star[i] = { SHORT(star[i].X - 1),SHORT(star[i].Y + 1) };
+				star[i] = { SHORT(star[i].X - 2),SHORT(star[i].Y + 1) };
 			}
 		}
 	}
