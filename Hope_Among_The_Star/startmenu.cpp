@@ -97,10 +97,10 @@ void gameWinner_page(char n[20], int lv, int sc) {
 	setcolor(2, 0);
 	cursorPos(40, 8);
 	printf("THANK YOU FOR SAVING US");
-	cursorPos(36, 9);
+	cursorPos(40, 9);
 	printf("=======================");
 	cursorPos(45, 10);
 	printf("Your Score");
-	cursorPos(30, 12);
+	cursorPos(32, 12);
 	printf("Name : %s\t Wave : %d\tScore : %d", n, lv, sc);
 }

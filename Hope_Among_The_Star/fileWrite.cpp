@@ -35,8 +35,10 @@ void scoreRead() {
 		if (fseek(fptr, noffset, 0) == 0) {
 			if (fread(&p[i], sizeof(struct player), 1, fptr) != 0) {
 				cursorPos(30, 10+i);
-				printf("Name : %s\t", p[i].name);
-				printf("Level : %d\t", p[i].level);
+				printf("Name : %s", p[i].name);
+				cursorPos(45, 10 + i);
+				printf("Level : %d", p[i].level);
+				cursorPos(60, 10 + i);
 				printf("Score : %d\n", p[i].score);
 			}
 		}

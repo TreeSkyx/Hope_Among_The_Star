@@ -60,9 +60,9 @@ int wave_star[5] = {0,10,15,20,0};
 int enemy_left;
 COORD star[max_star];
 //leader board
-char topName[5][20];
-int topLevel[5];
-int topScore[5];
+char topName[5][20] = { {'A'},{'B'},{'C'},{'D'},{'E'} };
+int topLevel[5] = { 1,2,2,1,1 };
+int topScore[5] = { 10,20,25,5,0 };
 void setcursor(bool visible) {
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO lpCursor;
@@ -262,10 +262,31 @@ void leaderBoard_write(char name[20], int lv, int sc) {
 	}
 }
 void winner() {
-	if (wave == 4) {
+	if (wave == 1) {
 		while(1)
 		gameWinner_page(pName, wave, score);
 	}
+}
+void collectLeaderboard() {
+	FILE* fptr2; int noffset2;
+	struct playerSave
+	{
+		char name[20];
+		int level;
+		int score;
+	}ps[5];
+	fptr2 = fopen("ScoreRecord.txt", "r");
+	for (int i = 0; i < 5; i++) {
+		noffset2 = i * sizeof(struct playerSave);
+		if (fseek(fptr2, noffset2, 0) == 0) {
+			if (fread(&ps[i], sizeof(struct playerSave), 1, fptr2) != 0) {
+				strcpy(topName[i], ps[i].name);
+				topLevel[i] = ps[i].level;
+				topScore[i] = ps[i].score;
+			}
+		}
+	}
+	fclose(fptr2);
 }
 void hitChecker() {
 	for (int i = 0; i < wave_star[wave]; i++) {
@@ -489,6 +510,7 @@ int main()
 	fontChange();
 	setMode();
 	wave_state = 1;
+	collectLeaderboard();
 	srand(time(NULL));
 	while (play) {
 		DWORD numEvents = 0;
