@@ -46,18 +46,16 @@ int clickStat = 0;
 int bulletState[bullet_amount];
 int bcount = 0;
 COORD bulletPos[bullet_amount];
-//enemy bullet
-COORD enemyBulletPos[enemy_bullet_amount];
-int enemyBulletState[enemy_bullet_amount];
-int enemyBulletCount = 0;
 //item var.
 COORD shield = { 10,1 };
 //wave & star var.
+int star_id[max_star];
 int star_des = 0;
 int star_state[max_star];
 int wave = 1;
-int wave_star[5] = {0,10,15,20,0};
+int wave_star[5] = {0,10,15,10,15};
 int enemy_left;
+int fighter_hp[max_star];
 COORD star[max_star];
 //leader board
 char topName[5][20] = { {'A'},{'B'},{'C'},{'D'},{'E'} };
@@ -162,21 +160,13 @@ void fill_shield_to_buffer(COORD shield) {
 		consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Char.AsciiChar = '_';
 		consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Attributes = 48;
 		consoleBuffer[mainShip.X + 4 + screen_x * int(mainShip.Y-1)].Char.AsciiChar = '\\';
-		//consoleBuffer[mainShip.X + 4 + screen_x * int(mainShip.Y - 1)].Attributes = 48;
 		consoleBuffer[mainShip.X - 4 + screen_x * int(mainShip.Y - 1)].Char.AsciiChar = '/';
-		//consoleBuffer[mainShip.X - 4 + screen_x * int(mainShip.Y - 1)].Attributes = 48;
 		consoleBuffer[mainShip.X + 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '\\';
-		//consoleBuffer[mainShip.X + 3 + screen_x * int(mainShip.Y - 2)].Attributes = 48;
 		consoleBuffer[mainShip.X - 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '/';
-		//consoleBuffer[mainShip.X - 3 + screen_x * int(mainShip.Y - 2)].Attributes = 48;
 		consoleBuffer[mainShip.X + 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '\\';
-		//consoleBuffer[mainShip.X + 2 + screen_x * int(mainShip.Y - 3)].Attributes = 48;
 		consoleBuffer[mainShip.X - 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '/';
-		//consoleBuffer[mainShip.X - 2 + screen_x * int(mainShip.Y - 3)].Attributes = 48;
 		consoleBuffer[mainShip.X + 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '\\';
-		//consoleBuffer[mainShip.X + 1 + screen_x * int(mainShip.Y - 4)].Attributes = 48;
 		consoleBuffer[mainShip.X - 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '/';
-		//consoleBuffer[mainShip.X - 1 + screen_x * int(mainShip.Y - 4)].Attributes = 48;
 		consoleBuffer[mainShip.X + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '-';
 		consoleBuffer[mainShip.X  + screen_x * int(mainShip.Y - 4)].Attributes = 48;
 	}
@@ -262,7 +252,7 @@ void leaderBoard_write(char name[20], int lv, int sc) {
 	}
 }
 void winner() {
-	if (wave == 1) {
+	if (wave == 4) {
 		while(1)
 		gameWinner_page(pName, wave, score);
 	}
@@ -292,7 +282,7 @@ void hitChecker() {
 	for (int i = 0; i < wave_star[wave]; i++) {
 		//bullet check
 		for (int j = 0; j < bullet_amount; j++) {
-			if (bulletState[j] == 1) {
+			if (bulletState[j] == 1 && star_id[i] == 1) {
 				if (((star[i].X == bulletPos[j].X) || (star[i].X+1 == bulletPos[j].X) || (star[i].X - 1 == bulletPos[j].X))&& (star[i].Y == bulletPos[j].Y || star[i].Y == bulletPos[j].Y + 1)) {
 					if (star[i].X == bulletPos[j].X) {
 						score += 2;
@@ -303,6 +293,27 @@ void hitChecker() {
 					star_des++;
 					bulletState[j] = 0;
 					Beep(1200, 25);
+				}
+			}
+			if (bulletState[j] == 1 && star_id[i] == 2) {
+				if (((star[i].X == bulletPos[j].X) || (star[i].X + 1 == bulletPos[j].X) || (star[i].X - 1 == bulletPos[j].X)) && (star[i].Y == bulletPos[j].Y)) {
+					if (star[i].X == bulletPos[j].X) {
+						fighter_hp[i]--;
+						bulletState[j] = 0;
+						Beep(1200, 25);
+						if (fighter_hp[i] == 0) score += 4;
+					}
+					else {
+						fighter_hp[i]--;
+						bulletState[j] = 0;
+						Beep(1200, 25);
+						if (fighter_hp[i] == 0) score += 2;
+					}
+					if (fighter_hp[i] == 0) {
+					star_state[i] = 0;
+					star[i] = { 50,0 };
+					star_des++;
+					}
 				}
 			}
 		}
@@ -404,47 +415,34 @@ void clear_screen() {
 	}
 }
 void init_star() {
-	int i,j;
-	for (i = 0; i < wave_star[wave]; i++) {
-		star[i] = { SHORT((rand() % ((screen_x-4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
-		star_state[i] = 1;
-		for (j = 0; j < wave_star[wave]; j++) {
-			if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
-				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
-			}
-			}
-	}
-}
-/*void fill_enemyB_to_buffer(int x, int y) {
-	consoleBuffer[x + screen_x * y].Char.AsciiChar = '^';
-	consoleBuffer[x + screen_x * y].Attributes = 48;
-}
-void init_starShooting() {
-	if (enemyBulletCount <= enemy_bullet_amount) {
-		int i = (rand() % wave_star[wave]);
-		if (star_state[i] == 1) {
-			enemyBulletState[i] = 1;
-			enemyBulletCount++;
-			enemyBulletPos[i].X = star[i].X;
-			enemyBulletPos[i].Y = star[i].Y;
-
-		}
-	}
-}
-void enemyBullet_on() {
-	for (int i = 0; i < enemy_bullet_amount;i++) {
-		if (enemyBulletState[i] == 1) {
-			if (enemyBulletPos[i].Y >= 28) {
-				enemyBulletState[i] = 0;
-				enemyBulletCount--;
-			}
-			else
-			{
-				fill_enemyB_to_buffer(enemyBulletPos[i].X, enemyBulletPos[i].Y--);
+	if (wave <= 2) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			star_id[i] = 1;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
 			}
 		}
 	}
-}*/
+	if (wave >= 3) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			star_id[i] = 2;
+			fighter_hp[i] = 2;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
+			}
+		}
+	}
+}
 void star_fall()
 {
 	int pattern = (rand()% 3);
@@ -452,9 +450,11 @@ void star_fall()
 		int i;
 		i = (rand() % wave_star[wave]);
 		if (star_state[i] == 1) {
-			if (star[i].Y >= 28) {
+			if (star[i].Y >= 27) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
-				MSlifepoint--;
+				if (star_id[i] == 1)
+					MSlifepoint--;
+				else if (star_id[i] == 2) MSlifepoint -= 2;
 			}
 			else {
 				star[i] = { star[i].X,SHORT(star[i].Y + 2) };
@@ -466,9 +466,11 @@ void star_fall()
 		i = (rand() % wave_star[wave]);
 		j = (rand() % 3);
 		if (star_state[i] == 1) {
-			if (star[i].Y >= 28) {
+			if (star[i].Y >= 27) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
-				MSlifepoint--;
+				if (star_id[i] == 1)
+					MSlifepoint--;
+				else if (star_id[i] == 2) MSlifepoint -= 2;
 			}
 			if (star[i].X <= 4) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
@@ -489,12 +491,22 @@ void fill_star_to_buffer()
 {
 	for (int i = 0; i < wave_star[wave]; i++) {
 		if (star_state[i] == 1) {
-			consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = '0';
-			consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '>';
-			consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '<';
-			consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 90;
-			consoleBuffer[star[i].X+1 + screen_x * star[i].Y].Attributes = 2;
-			consoleBuffer[star[i].X-1 + screen_x * star[i].Y].Attributes = 2;
+			if (star_id[i] == 1) {
+				consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = '0';
+				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '>';
+				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '<';
+				consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 90;
+				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Attributes = 2;
+				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Attributes = 2;
+			}
+			if (star_id[i] == 2) {
+				consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = fighter_hp[i]+48;
+				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '}';
+				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '{';
+				consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 95;
+				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Attributes = 4;
+				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Attributes = 4;
+			}
 		}
 	}
 }
@@ -601,8 +613,6 @@ int main()
 				wave_state = 0;
 			}
 			init_shield();
-			/*init_starShooting();
-			enemyBullet_on();*/
 			itemFall();
 			star_fall();
 			clear_buffer();

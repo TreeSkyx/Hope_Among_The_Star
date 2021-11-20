@@ -6,4 +6,9 @@ void playerName();
 void highScore();
 void gameEnd_page(char[],int,int);
 void gameWinner_page(char[],int,int);
+void starShip_draw(int, int);
+void deleteShip(int, int);
+void enemyShip_draw(int, int);
+void deleteEnemy(int, int);
+void init_starS();
 #endif // !STARTMENU_H
