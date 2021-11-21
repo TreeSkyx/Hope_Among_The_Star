@@ -34,6 +34,10 @@ void scoreRead() {
 		noffset = i * sizeof(struct player);
 		if (fseek(fptr, noffset, 0) == 0) {
 			if (fread(&p[i], sizeof(struct player), 1, fptr) != 0) {
+				if (i == 0)setcolor(6, 0);
+				else if (i == 1) setcolor(14, 0);
+				else if (i == 2) setcolor(11, 0);
+				else setcolor(3, 0);
 				cursorPos(30, 12+i*2);
 				printf("%d. ", i + 1);
 				printf("Name : %s", p[i].name);

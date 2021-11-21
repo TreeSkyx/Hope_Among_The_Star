@@ -10,5 +10,7 @@ void starShip_draw(int, int);
 void deleteShip(int, int);
 void enemyShip_draw(int, int);
 void deleteEnemy(int, int);
+void laser_draw(int, int);
+void deletelaser(int, int);
 void init_starS();
 #endif // !STARTMENU_H

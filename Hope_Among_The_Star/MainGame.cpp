@@ -62,7 +62,7 @@ COORD bulletPos[bullet_amount+3];
 int star_id[max_star];
 int star_des = 0;
 int star_state[max_star];
-int wave = 5;
+int wave = 1;
 int wave_star[10] = {0,10,15,10,10,10,10,10,15,15};
 int enemy_left;
 int fighter_hp[max_star];
@@ -73,9 +73,9 @@ int destoryerEnemy_count = 0;
 int enemy_speed = 1;
 COORD star[max_star];
 //leader board
-char topName[5][20] = { {'A'},{'B'},{'C'},{'D'},{'E'} };
-int topLevel[5] = { 1,2,2,1,1 };
-int topScore[5] = { 10,20,25,5,0 };
+char topName[5][20];
+int topLevel[5];
+int topScore[5];
 void setcursor(bool visible) {
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO lpCursor;
@@ -358,12 +358,12 @@ void leaderBoard_write(char name[20], int lv, int sc) {
 	}
 }
 void winner() {
-	if (wave == 5) {
+	if (wave == 10) {
 		pause = true;
-		/*leaderBoard_write(pName, wave, score);
+		leaderBoard_write(pName, wave, score);
 		for (int k = 0; k < 5; k++) {
 			scoreWrite(topName[k], topLevel[k], topScore[k], k);
-		}*/
+		}
 		gameWinner_page(pName, wave, score);
 	}
 }
@@ -464,8 +464,6 @@ void hitChecker() {
 			for (int k = 0; k < 5; k++) {
 				scoreWrite(topName[k], topLevel[k], topScore[k], k);
 			}
-			play = false;
-			while(1)
 			gameEnd_page(pName, wave, score);
 			
 		}
@@ -475,8 +473,6 @@ void hitChecker() {
 			for (int k = 0; k < 5; k++) {
 				scoreWrite(topName[k], topLevel[k], topScore[k], k);
 			}
-			play = false;
-			while(1)
 			gameEnd_page(pName, wave, score);
 			
 		}
@@ -761,7 +757,7 @@ void fill_star_to_buffer()
 	for (int i = 0; i < wave_star[wave]; i++) {
 		if (star_state[i] == 1) {
 			if (star_id[i] == 1) {
-				consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = '0';
+				consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = '1';
 				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '>';
 				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '<';
 				consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 90;
@@ -893,7 +889,7 @@ int main()
 			setcolor(7, 0);
 			playerName();
 			scanf("%s", pName);
-			cursorPos(40, 15);
+			cursorPos(39, 15);
 			printf("This is story of %s", pName);
 			Sleep(2000);
 			start = true;
