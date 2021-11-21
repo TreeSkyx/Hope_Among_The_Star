@@ -56,6 +56,7 @@ int wave = 1;
 int wave_star[5] = {0,10,15,10,15};
 int enemy_left;
 int fighter_hp[max_star];
+int destoryer_hp[max_star];
 COORD star[max_star];
 //leader board
 char topName[5][20] = { {'A'},{'B'},{'C'},{'D'},{'E'} };
@@ -295,8 +296,8 @@ void hitChecker() {
 					Beep(1200, 25);
 				}
 			}
-			if (bulletState[j] == 1 && star_id[i] == 2) {
-				if (((star[i].X == bulletPos[j].X) || (star[i].X + 1 == bulletPos[j].X) || (star[i].X - 1 == bulletPos[j].X)) && (star[i].Y == bulletPos[j].Y)) {
+			if (bulletState[j] == 1 && star_id[i] == 2 ) {
+				if (((star[i].X == bulletPos[j].X) || (star[i].X + 1 == bulletPos[j].X) || (star[i].X - 1 == bulletPos[j].X) || (star[i].X + 2 == bulletPos[j].X) || (star[i].X - 2 == bulletPos[j].X)) && (star[i].Y == bulletPos[j].Y)) {
 					if (star[i].X == bulletPos[j].X) {
 						fighter_hp[i]--;
 						bulletState[j] = 0;
@@ -316,6 +317,27 @@ void hitChecker() {
 					}
 				}
 			}
+			if (bulletState[j] == 1 && star_id[i] == 3) {
+				if (((star[i].X == bulletPos[j].X) || (star[i].X + 1 == bulletPos[j].X) || (star[i].X - 1 == bulletPos[j].X) || (star[i].X + 2 == bulletPos[j].X) || (star[i].X - 2 == bulletPos[j].X)) && (star[i].Y == bulletPos[j].Y)) {
+					if (star[i].X == bulletPos[j].X) {
+						destoryer_hp[i]--;
+						bulletState[j] = 0;
+						Beep(1200, 25);
+						if (destoryer_hp[i] == 0) score += 10;
+					}
+					else {
+						destoryer_hp[i]--;
+						bulletState[j] = 0;
+						Beep(1200, 25);
+						if (destoryer_hp[i] == 0) score += 5;
+					}
+					if (destoryer_hp[i] == 0) {
+						star_state[i] = 0;
+						star[i] = { 50,0 };
+						star_des++;
+					}
+				}
+			}
 		}
 		//ship check
 		if ((star[i].X == mainShip.X && star[i].Y == mainShip.Y-2)||(star[i].X == mainShip.X+1 && star[i].Y == mainShip.Y - 1) || (star[i].X == mainShip.X - 1 && star[i].Y == mainShip.Y - 1)
@@ -327,7 +349,7 @@ void hitChecker() {
 			lifepoint--;
 		}
 		//lifepoint check
-		if(lifepoint == 4){
+		if(lifepoint == 0){
 			leaderBoard_write(pName,wave,score);
 			for (int k = 0; k < 5; k++) {
 				scoreWrite(topName[k], topLevel[k], topScore[k], k);
@@ -415,7 +437,7 @@ void clear_screen() {
 	}
 }
 void init_star() {
-	if (wave <= 2) {
+	if (wave <= 0) {
 		int i, j;
 		for (i = 0; i < wave_star[wave]; i++) {
 			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
@@ -428,7 +450,7 @@ void init_star() {
 			}
 		}
 	}
-	if (wave >= 3) {
+	if (wave >= 0) {
 		int i, j;
 		for (i = 0; i < wave_star[wave]; i++) {
 			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
@@ -442,6 +464,21 @@ void init_star() {
 			}
 		}
 	}
+	
+		if (wave >= 1) {
+			int i, j;
+			for (i = 0; i < wave_star[wave]; i++) {
+				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+				star_state[i] = 1;
+				star_id[i] = 3;
+				destoryer_hp[i] = 5;
+				for (j = 0; j < wave_star[wave]; j++) {
+					if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+						star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+					}
+				}
+			}
+		}
 }
 void star_fall()
 {
@@ -452,9 +489,9 @@ void star_fall()
 		if (star_state[i] == 1) {
 			if (star[i].Y >= 27) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
-				if (star_id[i] == 1)
-					MSlifepoint--;
+				if (star_id[i] == 1) MSlifepoint--;
 				else if (star_id[i] == 2) MSlifepoint -= 2;
+				else if (star_id[i] == 3) MSlifepoint -= 5;
 			}
 			else {
 				star[i] = { star[i].X,SHORT(star[i].Y + 2) };
@@ -468,9 +505,9 @@ void star_fall()
 		if (star_state[i] == 1) {
 			if (star[i].Y >= 27) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
-				if (star_id[i] == 1)
-					MSlifepoint--;
+				if (star_id[i] == 1) MSlifepoint--;
 				else if (star_id[i] == 2) MSlifepoint -= 2;
+				else if (star_id[i] == 3) MSlifepoint -= 5;
 			}
 			if (star[i].X <= 4) {
 				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
@@ -501,11 +538,29 @@ void fill_star_to_buffer()
 			}
 			if (star_id[i] == 2) {
 				consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = fighter_hp[i]+48;
-				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '}';
-				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '{';
+				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '-';
+				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '-';
+				consoleBuffer[star[i].X + 2 + screen_x * star[i].Y].Char.AsciiChar = '}';
+				consoleBuffer[star[i].X - 2 + screen_x * star[i].Y].Char.AsciiChar = '{';
 				consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 95;
 				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Attributes = 4;
 				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Attributes = 4;
+			}
+			if (star_id[i] == 3) {
+				consoleBuffer[star[i].X + screen_x * star[i].Y].Char.AsciiChar = destoryer_hp[i] + 48;
+				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Char.AsciiChar = '<';
+				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Char.AsciiChar = '>';
+				consoleBuffer[star[i].X + 2 + screen_x * int(star[i].Y+1)].Char.AsciiChar = ':';
+				consoleBuffer[star[i].X - 2 + screen_x * int(star[i].Y+1)].Char.AsciiChar = ':';
+				consoleBuffer[star[i].X + screen_x * int(star[i].Y - 1)].Char.AsciiChar = 'M';
+				consoleBuffer[star[i].X + 2 + screen_x * star[i].Y].Char.AsciiChar = '[';
+				consoleBuffer[star[i].X - 2 + screen_x * star[i].Y].Char.AsciiChar = ']';
+				consoleBuffer[star[i].X + screen_x * star[i].Y].Attributes = 71; //fg white bg red
+				consoleBuffer[star[i].X + 1 + screen_x * star[i].Y].Attributes = 7;
+				consoleBuffer[star[i].X - 1 + screen_x * star[i].Y].Attributes = 7;
+				consoleBuffer[star[i].X + 2 + screen_x * star[i].Y].Attributes = 111;
+				consoleBuffer[star[i].X - 2 + screen_x * star[i].Y].Attributes = 111;
+				consoleBuffer[star[i].X + screen_x * int(star[i].Y - 1)].Attributes = 6;
 			}
 		}
 	}
@@ -593,8 +648,10 @@ int main()
 			}
 			credit_page();
 		}
-		if (bCount == 2) { clear_screen(); bCount = 0; }
-		if (cCount == 2) { clear_screen(); cCount = 0; }
+		if (!start) {
+			if (bCount == 2) { clear_screen(); bCount = 0; }
+			if (cCount == 2) { clear_screen(); cCount = 0; }
+		}
 		if (gCount==1 && !start) {
 			clear_screen();
 			setcursor(1);

@@ -34,11 +34,12 @@ void scoreRead() {
 		noffset = i * sizeof(struct player);
 		if (fseek(fptr, noffset, 0) == 0) {
 			if (fread(&p[i], sizeof(struct player), 1, fptr) != 0) {
-				cursorPos(30, 10+i);
+				cursorPos(30, 12+i*2);
+				printf("%d. ", i + 1);
 				printf("Name : %s", p[i].name);
-				cursorPos(45, 10 + i);
+				cursorPos(48, 12 + i*2);
 				printf("Level : %d", p[i].level);
-				cursorPos(60, 10 + i);
+				cursorPos(60, 12 + i*2);
 				printf("Score : %d\n", p[i].score);
 			}
 		}

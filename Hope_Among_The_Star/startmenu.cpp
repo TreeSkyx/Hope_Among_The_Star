@@ -4,14 +4,14 @@
 #include "cursorSetting.h"
 #define screen_x 100
 #define screen_y 30
-#define maxS 75
+#define maxS 50
 #include <stdio.h>
 #include <windows.h>
-int  i = 20;
+int  i = 26;
 int shipX = 7;
 int jumpCount = 0;
 int jumpCountE[3] = {0,0,0};
-COORD enemy[3] = { {6,15},{10,15},{8,13}};
+COORD enemy[3] = { {6,20},{10,20},{8,18}};
 COORD starS[maxS];
 int state = 0;
 void start_page() {
@@ -106,7 +106,10 @@ void start_page() {
 		Sleep(200);
 }
 void credit_page() {
-	state = 4;
+	if (state == 5) {
+		init_starS();
+		state--;
+	}
 	setcolor(7, 0);
 	cursorPos(45, 8);
 	printf("CREDIT");
@@ -118,19 +121,26 @@ void credit_page() {
 	printf("64010815 WIROON SOMPHAOTHONG");
 	cursorPos(36, 14);
 	printf("COMPUTER ENGINEERING,KMITL");
+	cursorPos(15, 28);
+	printf("This project is the part of Programming Fundamental Class | CE, KMITL");
 }
 void playerName() {
 	setcolor(7, 0);
-	cursorPos(40, 8);
+	cursorPos(43, 8);
 	printf("ENTER YOUR NAME");
-	cursorPos(40, 10);
+	cursorPos(43, 10);
 	printf("---------------");
-	cursorPos(40, 12);
+	cursorPos(43, 12);
 }
 void highScore() {
-	state = 4;
-	cursorPos(40, 8);
+	if (state == 5) {
+		init_starS();
+		state--;
+	}
+	cursorPos(44, 8);
 	printf("Leader Board");
+	cursorPos(41, 10);
+	printf("------------------");
 	scoreRead();
 
 }
