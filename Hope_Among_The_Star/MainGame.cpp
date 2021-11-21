@@ -36,17 +36,23 @@ int cCount = 0;
 bool clr_state = true;
 //item 
 int item_id[max_item];
+int upRate = 25;
 int shield_item = 0;
 int shield_state = 0;
 COORD shield = { 10,1 };
 int heal_state = 0;
 COORD heal = { 20,1 };
+int bomb_state = 0;
+COORD bomb = { 10,1 };
+int extraBullet_state = 0;
+COORD extraB = { 10,1 };
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
 //player var.
 char pName[20];
 //bullet var.
+int extraB_plus = 0;
 int clickStat = 0;
 int bulletState[bullet_amount];
 int bcount = 0;
@@ -63,6 +69,7 @@ int destoryer_hp[max_star];
 int normalEnemy_count = 0;
 int fighterEnemy_count = 0;
 int destoryerEnemy_count = 0;
+int enemy_speed = 1;
 COORD star[max_star];
 //leader board
 char topName[5][20] = { {'A'},{'B'},{'C'},{'D'},{'E'} };
@@ -135,6 +142,9 @@ void wave_change(int S_destroy) {
 		normalEnemy_count = 0;
 		fighterEnemy_count = 0;
 		destoryerEnemy_count = 0;
+		if (wave == 3) { upRate *= 2; }
+		if (wave == 5) { upRate *= 3; }
+		if (wave == 7) { upRate *= 4; }
 		star_des = 0;
 		wave_state = 1;
 	}
@@ -156,23 +166,41 @@ void itemFall() {
 			heal = { heal.X,SHORT(heal.Y + 1) };
 		}
 	}
+	if (bomb_state == 1) {
+		if (bomb.Y >= 28) {
+			bomb_state = 0;
+		}
+		else {
+			bomb = { bomb.X,SHORT(bomb.Y + 1) };
+		}
+	}
 }
 void init_item(){
 	for (int i = 0; i < max_item; i++) {
 		if (shield_item == 0 && shield_state == 0) {
-			int j = (rand() % 6);
+			int j = (rand() % (225 - upRate));
 			if (j == 2) {
 				shield_item = 1;
+				item_id[i] = 1;
 				shield = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
 			}
 		}
 		if (heal_state == 0) {
-			if (lifepoint < 6 || MSlifepoint < 20) {
-				int k = (rand() % 6);
+			if (lifepoint < 5 || MSlifepoint < 20) {
+				int k = (rand() % (275 - upRate));
 				if (k == 2) {
 					heal_state = 1;
+					item_id[i] = 2;
 					heal = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
 				}
+			}
+		}
+		if (bomb_state == 0) {
+			int l = (rand() % (125 - upRate));
+			if (l == 2) {
+				bomb_state = 1;
+				item_id[i] = 3;
+				bomb = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
 			}
 		}
 	}
@@ -204,6 +232,18 @@ void fill_item_to_buffer(int id) {
 		if (heal_state == 1) {
 			consoleBuffer[heal.X + screen_x * heal.Y].Char.AsciiChar = 'H';
 			consoleBuffer[heal.X + screen_x * heal.Y].Attributes = 168;
+		}
+	}
+	if (id == 3) {
+		if (bomb_state == 1) {
+			consoleBuffer[bomb.X + screen_x * bomb.Y].Char.AsciiChar = 'B';
+			consoleBuffer[bomb.X + screen_x * bomb.Y].Attributes = 71;
+		}
+	}
+	if (id == 4) {
+		if (extraBullet_state == 1) {
+			consoleBuffer[extraB.X + screen_x * extraB.Y].Char.AsciiChar = 'E';
+			consoleBuffer[extraB.X + screen_x * extraB.Y].Attributes = 48;
 		}
 	}
 }
@@ -438,6 +478,14 @@ void hitChecker() {
 			if(lifepoint<5) lifepoint += 1;
 			if(MSlifepoint<20) MSlifepoint += 1;
 		}
+		//bomb check
+		if ((bomb.X == mainShip.X && bomb.Y == mainShip.Y - 2) || (bomb.X == mainShip.X + 1 && bomb.Y == mainShip.Y - 1) || (bomb.X == mainShip.X - 1 && bomb.Y == mainShip.Y - 1)
+			|| (bomb.X == mainShip.X + 2 && bomb.Y == mainShip.Y) || (bomb.X == mainShip.X - 2 && bomb.Y == mainShip.Y)) {
+			bomb_state = 0;
+			bomb = { 50,0 };
+			Beep(450, 25);
+			lifepoint--;
+		}
 	}
 }
 void shooting(int stat) {
@@ -658,9 +706,9 @@ void star_fall()
 			}
 			else {
 				if(j==1)
-				star[i] = {SHORT(star[i].X + 2),SHORT(star[i].Y + 1) };
+				star[i] = {SHORT(star[i].X + (1 + enemy_speed)),SHORT(star[i].Y + 2) };
 				else
-				star[i] = { SHORT(star[i].X - 2),SHORT(star[i].Y + 1) };
+				star[i] = { SHORT(star[i].X - (1 + enemy_speed)),SHORT(star[i].Y + 2) };
 			}
 		}
 	}
@@ -800,7 +848,7 @@ int main()
 			playerName();
 			scanf("%s", pName);
 			cursorPos(40, 15);
-			printf("This is Story of %s", pName);
+			printf("This is story of %s", pName);
 			Sleep(2000);
 			start = true;
 			setcursor(0);

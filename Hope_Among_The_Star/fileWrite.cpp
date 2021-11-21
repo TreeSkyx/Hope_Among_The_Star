@@ -38,7 +38,7 @@ void scoreRead() {
 				printf("%d. ", i + 1);
 				printf("Name : %s", p[i].name);
 				cursorPos(48, 12 + i*2);
-				printf("Level : %d", p[i].level);
+				printf("Wave : %d", p[i].level);
 				cursorPos(60, 12 + i*2);
 				printf("Score : %d\n", p[i].score);
 			}
