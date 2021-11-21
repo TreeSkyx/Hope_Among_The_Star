@@ -8,6 +8,7 @@
 #include "fileWrite.h"
 #include "cursorSetting.h"
 #define max_star 30
+#define max_item 5
 #define screen_x 100
 #define screen_y 30
 #define bullet_amount 6
@@ -34,8 +35,12 @@ int bCount = 0;
 int cCount = 0;
 bool clr_state = true;
 //item 
+int item_id[max_item];
 int shield_item = 0;
 int shield_state = 0;
+COORD shield = { 10,1 };
+int heal_state = 0;
+COORD heal = { 20,1 };
 //ship var.
 COORD mainShip = { 32,26 };
 char direct = 'n';
@@ -46,17 +51,18 @@ int clickStat = 0;
 int bulletState[bullet_amount];
 int bcount = 0;
 COORD bulletPos[bullet_amount];
-//item var.
-COORD shield = { 10,1 };
 //wave & star var.
 int star_id[max_star];
 int star_des = 0;
 int star_state[max_star];
 int wave = 1;
-int wave_star[5] = {0,10,15,10,15};
+int wave_star[10] = {0,10,15,10,10,10,10,10,15,15};
 int enemy_left;
 int fighter_hp[max_star];
 int destoryer_hp[max_star];
+int normalEnemy_count = 0;
+int fighterEnemy_count = 0;
+int destoryerEnemy_count = 0;
 COORD star[max_star];
 //leader board
 char topName[5][20] = { {'A'},{'B'},{'C'},{'D'},{'E'} };
@@ -81,7 +87,6 @@ int setMode() {
 	SetConsoleMode(rHnd, fdwMode);
 	return 0;
 }
-
 void draw_ship_to_buffer(COORD ship) {
 	consoleBuffer[ship.X + screen_x * ship.Y].Char.AsciiChar = ' ';//0
 	consoleBuffer[ship.X - 1 + screen_x * ship.Y].Char.AsciiChar = '_';// /
@@ -127,6 +132,9 @@ void shipMovement(char dir) {
 void wave_change(int S_destroy) {
 	if (S_destroy == wave_star[wave]) {
 		wave++;
+		normalEnemy_count = 0;
+		fighterEnemy_count = 0;
+		destoryerEnemy_count = 0;
 		star_des = 0;
 		wave_state = 1;
 	}
@@ -140,36 +148,63 @@ void itemFall() {
 			shield = { shield.X,SHORT(shield.Y + 1) };
 		}
 	}
-}
-void init_shield() {
-	if (shield_item == 0 && shield_state == 0) {
-		int i = (rand() % 6);
-		if (i == 2) {
-			shield_item = 1;
-			shield = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+	if (heal_state == 1) {
+		if (heal.Y >= 28) {
+			heal_state = 0;
+		}
+		else {
+			heal = { heal.X,SHORT(heal.Y + 1) };
 		}
 	}
 }
-void fill_shield_to_buffer(COORD shield) {
-	if (shield_item == 1) {
-		consoleBuffer[shield.X + screen_x * shield.Y].Char.AsciiChar = 'S';
-		consoleBuffer[shield.X + screen_x * shield.Y].Attributes = 48;
+void init_item(){
+	for (int i = 0; i < max_item; i++) {
+		if (shield_item == 0 && shield_state == 0) {
+			int j = (rand() % 6);
+			if (j == 2) {
+				shield_item = 1;
+				shield = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+			}
+		}
+		if (heal_state == 0) {
+			if (lifepoint < 6 || MSlifepoint < 20) {
+				int k = (rand() % 6);
+				if (k == 2) {
+					heal_state = 1;
+					heal = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
+			}
+		}
 	}
-	if (shield_state == 1) {
-		consoleBuffer[mainShip.X + 5 + screen_x * mainShip.Y].Char.AsciiChar = '_';
-		consoleBuffer[mainShip.X + 5 + screen_x * mainShip.Y].Attributes = 48;
-		consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Char.AsciiChar = '_';
-		consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Attributes = 48;
-		consoleBuffer[mainShip.X + 4 + screen_x * int(mainShip.Y-1)].Char.AsciiChar = '\\';
-		consoleBuffer[mainShip.X - 4 + screen_x * int(mainShip.Y - 1)].Char.AsciiChar = '/';
-		consoleBuffer[mainShip.X + 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '\\';
-		consoleBuffer[mainShip.X - 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '/';
-		consoleBuffer[mainShip.X + 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '\\';
-		consoleBuffer[mainShip.X - 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '/';
-		consoleBuffer[mainShip.X + 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '\\';
-		consoleBuffer[mainShip.X - 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '/';
-		consoleBuffer[mainShip.X + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '-';
-		consoleBuffer[mainShip.X  + screen_x * int(mainShip.Y - 4)].Attributes = 48;
+}
+void fill_item_to_buffer(int id) {
+	if (id == 1) {
+		if (shield_item == 1) {
+			consoleBuffer[shield.X + screen_x * shield.Y].Char.AsciiChar = 'S';
+			consoleBuffer[shield.X + screen_x * shield.Y].Attributes = 48;
+		}
+		if (shield_state == 1) {
+			consoleBuffer[mainShip.X + 5 + screen_x * mainShip.Y].Char.AsciiChar = '_';
+			consoleBuffer[mainShip.X + 5 + screen_x * mainShip.Y].Attributes = 48;
+			consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Char.AsciiChar = '_';
+			consoleBuffer[mainShip.X - 5 + screen_x * mainShip.Y].Attributes = 48;
+			consoleBuffer[mainShip.X + 4 + screen_x * int(mainShip.Y - 1)].Char.AsciiChar = '\\';
+			consoleBuffer[mainShip.X - 4 + screen_x * int(mainShip.Y - 1)].Char.AsciiChar = '/';
+			consoleBuffer[mainShip.X + 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '\\';
+			consoleBuffer[mainShip.X - 3 + screen_x * int(mainShip.Y - 2)].Char.AsciiChar = '/';
+			consoleBuffer[mainShip.X + 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '\\';
+			consoleBuffer[mainShip.X - 2 + screen_x * int(mainShip.Y - 3)].Char.AsciiChar = '/';
+			consoleBuffer[mainShip.X + 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '\\';
+			consoleBuffer[mainShip.X - 1 + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '/';
+			consoleBuffer[mainShip.X + screen_x * int(mainShip.Y - 4)].Char.AsciiChar = '-';
+			consoleBuffer[mainShip.X + screen_x * int(mainShip.Y - 4)].Attributes = 48;
+		}
+	}
+	if (id == 2) {
+		if (heal_state == 1) {
+			consoleBuffer[heal.X + screen_x * heal.Y].Char.AsciiChar = 'H';
+			consoleBuffer[heal.X + screen_x * heal.Y].Attributes = 168;
+		}
 	}
 }
 void scoreBoard(int s) {
@@ -253,7 +288,7 @@ void leaderBoard_write(char name[20], int lv, int sc) {
 	}
 }
 void winner() {
-	if (wave == 4) {
+	if (wave == 10) {
 		while(1)
 		gameWinner_page(pName, wave, score);
 	}
@@ -394,6 +429,15 @@ void hitChecker() {
 				Beep(1200, 25);
 			}
 		}
+		//heal check
+		if ((heal.X == mainShip.X && heal.Y == mainShip.Y - 2) || (heal.X == mainShip.X + 1 && heal.Y == mainShip.Y - 1) || (heal.X == mainShip.X - 1 && heal.Y == mainShip.Y - 1)
+			|| (heal.X == mainShip.X + 2 && heal.Y == mainShip.Y) || (heal.X == mainShip.X - 2 && heal.Y == mainShip.Y)) {
+			heal_state = 0;
+			heal = { 50,0 };
+			Beep(800, 25);
+			if(lifepoint<5) lifepoint += 1;
+			if(MSlifepoint<20) MSlifepoint += 1;
+		}
 	}
 }
 void shooting(int stat) {
@@ -437,12 +481,15 @@ void clear_screen() {
 	}
 }
 void init_star() {
-	if (wave <= 0) {
+	if (wave <= 2) {
 		int i, j;
 		for (i = 0; i < wave_star[wave]; i++) {
 			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
 			star_state[i] = 1;
 			star_id[i] = 1;
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
 			for (j = 0; j < wave_star[wave]; j++) {
 				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
 					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
@@ -450,11 +497,31 @@ void init_star() {
 			}
 		}
 	}
-	if (wave >= 0) {
+	if (wave == 3) {
 		int i, j;
 		for (i = 0; i < wave_star[wave]; i++) {
 			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
 			star_state[i] = 1;
+			if (normalEnemy_count < 5) star_id[i] = 1;
+			else { star_id[i] = 2; fighter_hp[i] = 2; }
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
+			}
+		}
+	}
+	if (wave == 4) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
 			star_id[i] = 2;
 			fighter_hp[i] = 2;
 			for (j = 0; j < wave_star[wave]; j++) {
@@ -464,21 +531,95 @@ void init_star() {
 			}
 		}
 	}
-	
-		if (wave >= 1) {
-			int i, j;
-			for (i = 0; i < wave_star[wave]; i++) {
-				star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
-				star_state[i] = 1;
-				star_id[i] = 3;
-				destoryer_hp[i] = 5;
-				for (j = 0; j < wave_star[wave]; j++) {
-					if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
-						star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
-					}
+	if (wave == 5) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			if (normalEnemy_count < 5) star_id[i] = 1;
+			else if (normalEnemy_count >= 5 && fighterEnemy_count < 3) { star_id[i] = 2; fighter_hp[i] = 2; }
+			else if (normalEnemy_count >= 5 && fighterEnemy_count >= 3 && destoryerEnemy_count < 2) { star_id[i] = 3; destoryer_hp[i] = 5; }
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
 				}
 			}
 		}
+	}
+	if (wave == 6) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			if (normalEnemy_count < 4) star_id[i] = 1;
+			else if (normalEnemy_count >= 4 && fighterEnemy_count < 2) { star_id[i] = 2; fighter_hp[i] = 2; }
+			else if (normalEnemy_count >= 4 && fighterEnemy_count >= 2 && destoryerEnemy_count < 4) { star_id[i] = 3; destoryer_hp[i] = 5; }
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
+			}
+		}
+	}
+	if (wave == 7) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			if (normalEnemy_count < 2) star_id[i] = 1;
+			else if (normalEnemy_count >= 2 && fighterEnemy_count < 3) { star_id[i] = 2; fighter_hp[i] = 2; }
+			else if (normalEnemy_count >= 2 && fighterEnemy_count >= 3 && destoryerEnemy_count < 5) { star_id[i] = 3; destoryer_hp[i] = 5; }
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
+			}
+		}
+	}
+	if (wave == 8) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			if (normalEnemy_count < 5) star_id[i] = 1;
+			else if (normalEnemy_count >= 5 && fighterEnemy_count < 5) { star_id[i] = 2; fighter_hp[i] = 2; }
+			else if (normalEnemy_count >= 5 && fighterEnemy_count >= 5 && destoryerEnemy_count < 5) { star_id[i] = 3; destoryer_hp[i] = 5; }
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
+			}
+		}
+	}
+	if (wave == 9) {
+		int i, j;
+		for (i = 0; i < wave_star[wave]; i++) {
+			star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 }; //(max-min+1)+min
+			star_state[i] = 1;
+			if (fighterEnemy_count < 10) { star_id[i] = 2; fighter_hp[i] = 2; }
+			else if (fighterEnemy_count >= 10 && destoryerEnemy_count < 5) { star_id[i] = 3; destoryer_hp[i] = 5; }
+			if (star_id[i] == 1) normalEnemy_count++;
+			else if (star_id[i] == 2) fighterEnemy_count++;
+			else if (star_id[i] == 3) destoryerEnemy_count++;
+			for (j = 0; j < wave_star[wave]; j++) {
+				if (star[i].X + 1 == star[j].X || star[i].X + 2 == star[j].X || star[i].X - 1 == star[j].X || star[i].X - 2 == star[j].X) {
+					star[i] = { SHORT((rand() % ((screen_x - 4) - 4 + 1)) + 4),1 };
+				}
+			}
+		}
+	}
 }
 void star_fall()
 {
@@ -659,7 +800,7 @@ int main()
 			playerName();
 			scanf("%s", pName);
 			cursorPos(40, 15);
-			printf("This is Stroy of %s", pName);
+			printf("This is Story of %s", pName);
 			Sleep(2000);
 			start = true;
 			setcursor(0);
@@ -669,7 +810,7 @@ int main()
 				init_star();
 				wave_state = 0;
 			}
-			init_shield();
+			init_item();
 			itemFall();
 			star_fall();
 			clear_buffer();
@@ -679,7 +820,8 @@ int main()
 			hitChecker();
 			bullet_on();
 			draw_ship_to_buffer(mainShip);
-			fill_shield_to_buffer(shield);
+			for(int itemR = 0;itemR<max_item;itemR++)			
+				fill_item_to_buffer(itemR);
 			fill_star_to_buffer();
 			fill_buffer_to_console();
 			winner();
