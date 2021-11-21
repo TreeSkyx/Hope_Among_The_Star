@@ -33,7 +33,6 @@ int wave_state = 0;
 int gCount = 0;
 int bCount = 0;
 int cCount = 0;
-int xCount = 0;
 bool clr_state = true;
 //item 
 int item_id[max_item];
@@ -853,9 +852,6 @@ int main()
 					}
 					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'C' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'c') {
 						cCount++;
-					}
-					else if (eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'X' || eventBuffer[i].Event.KeyEvent.uChar.AsciiChar == 'x') {
-						xCount++;
 					}
 				}
 			}
