@@ -23,7 +23,7 @@ void random() {
 void start_page() {
 	int x = 0, y = 0;
 		if (state == 0) {
-			for (x = 0; x < screen_x; x++) {
+			for (x = 0; x < screen_x-1; x++) {
 				cursorPos(x, 0);
 				setcolor(7, 7);
 				printf("_");
@@ -42,7 +42,7 @@ void start_page() {
 		}
 		if (state == 2) {
 			for (x = screen_x - 1; x >= 0; x--) {
-				cursorPos(x, screen_y - 1);
+				cursorPos(x, screen_y-1);
 				setcolor(7, 7);
 				printf("_");
 				Sleep(10);
@@ -170,9 +170,11 @@ void playerName() {
 	printf("ENTER YOUR NAME");
 	cursorPos(40, 10);
 	printf("Max : 15 Characters!");
-	cursorPos(39, 11);
+	cursorPos(36, 12);
+	printf("(PRESS ENTER DOUBLE TO START)");
+	cursorPos(39, 13);
 	printf("=======================");
-	cursorPos(43, 13);
+	cursorPos(43, 15);
 }
 void highScore() {
 	if (state == 5) {

@@ -7,8 +7,8 @@
 #include "startmenu.h"
 #include "fileWrite.h"
 #include "cursorSetting.h"
-#define max_star 30
-#define max_item 5
+#define max_star 30 
+#define max_item 5 
 #define screen_x 100
 #define screen_y 30
 #define bullet_amount 6
@@ -34,7 +34,7 @@ int gCount = 0;
 int bCount = 0;
 int cCount = 0;
 bool clr_state = true;
-//item 
+//item var.
 int item_id[max_item];
 int upRate = 25;
 int shield_item = 0;
@@ -61,8 +61,8 @@ COORD bulletPos[bullet_amount+3];
 int star_id[max_star];
 int star_des = 0;
 int star_state[max_star];
-int wave = 9;
-int wave_star[10] = {0,10,15,10,10,10,10,10,15,15};
+int wave = 1;
+int wave_star[11] = {0,10,15,10,10,10,10,10,15,15,0};
 int enemy_left;
 int fighter_hp[max_star];
 int destoryer_hp[max_star];
@@ -71,8 +71,8 @@ int fighterEnemy_count = 0;
 int destoryerEnemy_count = 0;
 int enemy_speed = 1;
 COORD star[max_star];
-//leader board
-char topName[5][20] = { { },{ },{ },{ },{ } };
+//leaderboard var.
+char topName[5][20] = { {},{},{},{},{}};
 int topLevel[5] = { 0,0,0,0,0 };
 int topScore[5]  = { 0,0,0,0,0 };
 void setcursor(bool visible) {
@@ -95,17 +95,17 @@ int setMode() {
 	return 0;
 }
 void draw_ship_to_buffer(COORD ship) {
-	consoleBuffer[ship.X + screen_x * ship.Y].Char.AsciiChar = ' ';//0
-	consoleBuffer[ship.X - 1 + screen_x * ship.Y].Char.AsciiChar = '_';// /
+	consoleBuffer[ship.X + screen_x * ship.Y].Char.AsciiChar = ' ';
+	consoleBuffer[ship.X - 1 + screen_x * ship.Y].Char.AsciiChar = '_';
 	consoleBuffer[ship.X + 1 + screen_x * ship.Y].Char.AsciiChar = '_';
-	consoleBuffer[ship.X - 2 + screen_x * ship.Y].Char.AsciiChar = '^'; // }
+	consoleBuffer[ship.X - 2 + screen_x * ship.Y].Char.AsciiChar = '^';
 	consoleBuffer[ship.X + 2 + screen_x * ship.Y].Char.AsciiChar = '^';
-	consoleBuffer[ship.X + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' '; // A
-	consoleBuffer[ship.X + 1 + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' ';// >
+	consoleBuffer[ship.X + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' '; 
+	consoleBuffer[ship.X + 1 + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' ';
 	consoleBuffer[ship.X - 1 + screen_x * int(ship.Y - 1)].Char.AsciiChar = ' ';
-	consoleBuffer[ship.X + screen_x * int(ship.Y - 2)].Char.AsciiChar = '^'; // ^
-	consoleBuffer[ship.X - 1 + screen_x * int(ship.Y + 1)].Char.AsciiChar = 'W'; // W
-	consoleBuffer[ship.X + 1 + screen_x * int(ship.Y + 1)].Char.AsciiChar = 'W'; // W
+	consoleBuffer[ship.X + screen_x * int(ship.Y - 2)].Char.AsciiChar = '^'; 
+	consoleBuffer[ship.X - 1 + screen_x * int(ship.Y + 1)].Char.AsciiChar = 'W'; 
+	consoleBuffer[ship.X + 1 + screen_x * int(ship.Y + 1)].Char.AsciiChar = 'W'; 
 	consoleBuffer[ship.X + screen_x * ship.Y].Attributes = 23;
 	consoleBuffer[ship.X + 1 + screen_x * ship.Y].Attributes = 120;//white
 	consoleBuffer[ship.X - 1 + screen_x * ship.Y].Attributes = 120;
@@ -115,7 +115,7 @@ void draw_ship_to_buffer(COORD ship) {
 	consoleBuffer[ship.X - 1 + screen_x * int(ship.Y - 1)].Attributes = 120;
 	consoleBuffer[ship.X + screen_x * int(ship.Y - 1)].Attributes = 48;//light blue
 	consoleBuffer[ship.X + screen_x * int(ship.Y - 2)].Attributes = 78;
-	consoleBuffer[ship.X + 1 + screen_x * int(ship.Y + 1)].Attributes = 6;// 108 yellow 
+	consoleBuffer[ship.X + 1 + screen_x * int(ship.Y + 1)].Attributes = 6;//yellow 
 	consoleBuffer[ship.X - 1 + screen_x * int(ship.Y + 1)].Attributes = 6;
 }
 void shipMovement(char dir) {
@@ -357,12 +357,12 @@ void leaderBoard_write(char name[20], int lv, int sc) {
 	}
 }
 void winner() {
-	if (wave == 10) {
-		pause = true;
+	if (wave >= 10) {
 		leaderBoard_write(pName, wave, score);
 		for (int k = 0; k < 5; k++) {
 			scoreWrite(topName[k], topLevel[k], topScore[k], k);
 		}
+		pause = true;
 		gameWinner_page(pName, wave, score);
 	}
 }
@@ -458,7 +458,7 @@ void hitChecker() {
 			lifepoint--;
 		}
 		//lifepoint check
-		if(lifepoint == 0){
+		if(lifepoint <= 0){
 			leaderBoard_write(pName,wave,score);
 			for (int k = 0; k < 5; k++) {
 				scoreWrite(topName[k], topLevel[k], topScore[k], k);
@@ -467,7 +467,7 @@ void hitChecker() {
 			
 		}
 		//MSlifepoint checker
-		if (MSlifepoint == 0) {
+		if (MSlifepoint <= 0) {
 			leaderBoard_write(pName, wave, score);
 			for (int k = 0; k < 5; k++) {
 				scoreWrite(topName[k], topLevel[k], topScore[k], k);
@@ -885,7 +885,7 @@ int main()
 			setcolor(7, 0);
 			playerName();
 			scanf("%s", pName);
-			cursorPos(39, 15);
+			cursorPos(39, 17);
 			printf("This is story of %s", pName);
 			Sleep(2000);
 			start = true;
@@ -896,6 +896,7 @@ int main()
 				init_star();
 				wave_state = 0;
 			}
+			winner();
 			init_item();
 			itemFall();
 			star_fall();
@@ -910,7 +911,6 @@ int main()
 				fill_item_to_buffer(itemR);
 			fill_star_to_buffer();
 			fill_buffer_to_console();
-			winner();
 			Sleep(100);
 		}
 	}
