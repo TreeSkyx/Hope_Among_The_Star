@@ -61,7 +61,7 @@ COORD bulletPos[bullet_amount+3];
 int star_id[max_star];
 int star_des = 0;
 int star_state[max_star];
-int wave = 1;
+int wave = 9;
 int wave_star[10] = {0,10,15,10,10,10,10,10,15,15};
 int enemy_left;
 int fighter_hp[max_star];
@@ -72,9 +72,9 @@ int destoryerEnemy_count = 0;
 int enemy_speed = 1;
 COORD star[max_star];
 //leader board
-char topName[5][20];
-int topLevel[5];
-int topScore[5];
+char topName[5][20] = { { },{ },{ },{ },{ } };
+int topLevel[5] = { 0,0,0,0,0 };
+int topScore[5]  = { 0,0,0,0,0 };
 void setcursor(bool visible) {
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO lpCursor;

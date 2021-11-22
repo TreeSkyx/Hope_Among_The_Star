@@ -181,7 +181,7 @@ void highScore() {
 	}
 	cursorPos(45, 8);
 	setcolor(2, 0);
-	printf("Leaderboard");
+	printf("LEADERBOARD");
 	cursorPos(39, 10);
 	printf("=======================");
 	scoreRead();
